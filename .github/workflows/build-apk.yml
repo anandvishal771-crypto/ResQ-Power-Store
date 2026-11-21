@@ -38,7 +38,7 @@ jobs:
       - name: Build Android App
         run: |
           npm init -y
-          npm install --no-audit --no-fund @capacitor/core @capacitor/cli @capacitor/android
+          npm install --no-audit --no-fund @capacitor/core @capacitor/cli @capacitor/android @capacitor/filesystem @capacitor/share
           npm install --no-audit --no-fund -D @capacitor/assets
           npx cap init "ResQPowerStore" "com.resq.powerstore" --web-dir=www
           npx cap add android
@@ -48,6 +48,18 @@ jobs:
             npx capacitor-assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#111111'
           fi
           npx cap sync android
+          node -e '
+          const fs = require("fs");
+          const path = "android/app/src/main/AndroidManifest.xml";
+          let xml = fs.readFileSync(path, "utf8");
+          if (!xml.includes("READ_EXTERNAL_STORAGE")) {
+            xml = xml.replace(
+              "<application",
+              "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <application"
+            );
+            fs.writeFileSync(path, xml, "utf8");
+          }
+          '
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
