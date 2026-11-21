@@ -62,6 +62,124 @@
       transition: background 0.18s ease, color 0.18s ease;
     }
 
+    /* Splash Screen with Zoom-Out Logo + Orange Progress Line */
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: #09090b;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    #splashScreen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transform: scale(1.24);
+      opacity: 0.25;
+      animation: splashZoomOut 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes splashZoomOut {
+      0% {
+        transform: scale(1.26);
+        opacity: 0.25;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .splash-badge {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #27272a, #09090b);
+      border: 2px solid rgba(249, 115, 22, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+      margin-bottom: 12px;
+    }
+
+    .splash-brand {
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .splash-store {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #fda4af;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .splash-tagline {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: #d4d4d8;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+
+    .splash-tagline .r {
+      color: #ef4444;
+    }
+
+    .splash-loader-box {
+      width: 240px;
+      max-width: 76vw;
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .splash-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      overflow: hidden;
+    }
+
+    .splash-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ea580c, #f97316, #fb923c);
+      transition: width 0.08s linear;
+    }
+
+    .splash-pct {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fb923c;
+      font-variant-numeric: tabular-nums;
+    }
+
     .app {
       max-width: 1140px;
       margin: 0 auto;
@@ -573,7 +691,6 @@
       display: none;
     }
 
-    /* Mobile Collapsible Cards for Main Table & Modal List Table */
     @media (max-width: 768px) {
       .dd-field-row {
         grid-template-columns: 105px 1fr;
@@ -914,6 +1031,33 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
+  <!-- Splash Screen: Zoom-Out Logo + Orange Progress Bar -->
+  <div id="splashScreen" aria-hidden="true">
+    <div class="splash-logo-wrap">
+      <div class="splash-badge">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 7C45.8 7 57 18.2 57 32C57 38.4 54.6 44.2 50.6 48.6" stroke="#f59e0b" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M13.4 48.6C9.4 44.2 7 38.4 7 32C7 18.2 18.2 7 32 7" stroke="#ea580c" stroke-width="2.8" stroke-linecap="round"/>
+          <circle cx="32" cy="32" r="19" stroke="#ef4444" stroke-width="2.4" stroke-dasharray="92 22"/>
+          <polygon points="23,22 33,22 41,35 50,35 35,38 28,28 19,28" fill="#ef4444"/>
+          <polygon points="29,34 36,34 52,50 33,39" fill="#dc2626"/>
+        </svg>
+      </div>
+      <div class="splash-brand">RESQ POWER</div>
+      <div class="splash-store">STORE</div>
+      <div class="splash-tagline">
+        <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
+      </div>
+    </div>
+
+    <div class="splash-loader-box">
+      <div class="splash-track">
+        <div class="splash-bar" id="splashBar"></div>
+      </div>
+      <div class="splash-pct" id="splashPct">0%</div>
+    </div>
+  </div>
+
   <!-- Slide-out 3-Line Menu Drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
   <aside class="drawer" id="navDrawer" aria-label="Menu">
@@ -1186,10 +1330,10 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "resq_power_store_v16";
+    const STORAGE_KEY = "resq_power_store_v17";
     const THEME_KEY = "resq_power_theme_v2";
     const LANG_MODE_KEY = "resq_power_lang_mode_v1";
-    const SLIP_KEY = "resq_power_last_slip_v16";
+    const SLIP_KEY = "resq_power_last_slip_v17";
 
     const i18n = {
       hi: {
@@ -1284,8 +1428,8 @@
         sSign2: "प्राप्तकर्ता हस्ताक्षर",
         closeBtn: "बंद करें",
         pdfBtn: "PDF डाउनलोड",
-        savedMsg: (path) => `PDF सेव हो गई: ${path}`,
-        pdfFailMsg: "PDF जनरेट या सेव करने में समस्या आई।",
+        savedMsg: (path) => `PDF डाउनलोड/सेव हो गई: ${path}`,
+        pdfFailMsg: "PDF जनरेट या डाउनलोड करने में समस्या आई।",
         mAllTitle: "कुल आइटम सूची",
         mIssueTitle: "इश्यू मात्रा सूची",
         mHistTitle: "इश्यू हिस्ट्री",
@@ -1384,7 +1528,7 @@
         closeBtn: "Close",
         pdfBtn: "Download PDF",
         savedMsg: (path) => `Saved PDF: ${path}`,
-        pdfFailMsg: "Failed to generate or save PDF.",
+        pdfFailMsg: "Failed to generate or download PDF.",
         mAllTitle: "Total Items List",
         mIssueTitle: "Issue Quantity List",
         mHistTitle: "Issued History",
@@ -1417,9 +1561,43 @@
       return i18n[currentLang] || i18n.en;
     }
 
-    function isNativeCapacitor() {
+    function runSplashLoader() {
+      const splash = document.getElementById("splashScreen");
+      const bar = document.getElementById("splashBar");
+      const pctEl = document.getElementById("splashPct");
+      if (!splash || !bar || !pctEl) return;
+
+      let pct = 0;
+      const timer = setInterval(() => {
+        pct += 4;
+        if (pct > 100) pct = 100;
+        bar.style.width = pct + "%";
+        pctEl.textContent = pct + "%";
+
+        if (pct >= 100) {
+          clearInterval(timer);
+          setTimeout(() => {
+            splash.classList.add("hide");
+          }, 180);
+        }
+      }, 60);
+    }
+
+    function getCapacitorPlugins() {
       const cap = window.Capacitor;
-      return Boolean(cap && typeof cap.isNativePlatform === "function" && cap.isNativePlatform());
+      if (!cap) return null;
+      const isNative = typeof cap.isNativePlatform === "function" ? cap.isNativePlatform() : Boolean(cap.Plugins);
+      if (!isNative) return null;
+
+      const plugins = cap.Plugins || {};
+      const Filesystem = plugins.Filesystem || cap.Filesystem || null;
+      const Share = plugins.Share || cap.Share || null;
+      const Directory = plugins.Directory || (Filesystem && Filesystem.Directory) || {
+        Documents: "DOCUMENTS",
+        ExternalStorage: "EXTERNAL_STORAGE",
+        Cache: "CACHE"
+      };
+      return { cap, Filesystem, Share, Directory };
     }
 
     function textToBase64Utf8(str) {
@@ -1493,6 +1671,36 @@
       return doc;
     }
 
+    async function saveBase64ToAndroid(Filesystem, Directory, fileName, base64Data, mimeType) {
+      if (Filesystem.requestPermissions) {
+        try {
+          await Filesystem.requestPermissions();
+        } catch (_) {}
+      }
+
+      const targets = [
+        { directory: Directory.ExternalStorage, path: `Download/${fileName}`, label: `Download/${fileName}` },
+        { directory: Directory.Documents, path: fileName, label: `Documents/${fileName}` },
+        { directory: Directory.Cache, path: fileName, label: `Cache/${fileName}` }
+      ];
+
+      let lastErr = null;
+      for (const t of targets) {
+        try {
+          const res = await Filesystem.writeFile({
+            path: t.path,
+            data: base64Data,
+            directory: t.directory,
+            recursive: true
+          });
+          return { res, label: t.label };
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr || new Error("Write failed");
+    }
+
     async function handleSavePdfOrPrint() {
       const trs = t();
       const slipForExport = lastSlipData || {
@@ -1517,42 +1725,35 @@
         return;
       }
 
-      if (isNativeCapacitor()) {
-        const cap = window.Capacitor;
-        const Filesystem = cap.Plugins && cap.Plugins.Filesystem;
-        const Directory = cap.Plugins && cap.Plugins.Directory;
-        const Share = cap.Plugins && cap.Plugins.Share;
+      const native = getCapacitorPlugins();
+      if (native && native.Filesystem) {
+        try {
+          const dataUri = doc.output("datauristring");
+          const base64Pdf = String(dataUri).split(",")[1] || "";
+          const saved = await saveBase64ToAndroid(
+            native.Filesystem,
+            native.Directory,
+            fileName,
+            base64Pdf,
+            "application/pdf"
+          );
 
-        if (Filesystem && Directory) {
-          try {
-            if (Filesystem.requestPermissions) {
-              await Filesystem.requestPermissions();
-            }
-            const dataUri = doc.output("datauristring");
-            const base64Pdf = String(dataUri).split(",")[1] || "";
-
-            const saved = await Filesystem.writeFile({
-              path: fileName,
-              data: base64Pdf,
-              directory: Directory.Documents
-            });
-
-            if (Share && saved && saved.uri) {
-              await Share.share({
+          if (native.Share && saved.res && saved.res.uri) {
+            try {
+              await native.Share.share({
                 title: fileName,
                 text: fileName,
-                url: saved.uri,
+                url: saved.res.uri,
                 dialogTitle: fileName
               });
               return;
-            }
-            alert(trs.savedMsg("Documents/" + fileName));
-            return;
-          } catch (err) {
-            console.error("Capacitor PDF save error:", err);
-            alert(trs.pdfFailMsg);
-            return;
+            } catch (_) {}
           }
+
+          alert(trs.savedMsg(saved.label));
+          return;
+        } catch (err) {
+          console.error("Capacitor PDF download error:", err);
         }
       }
 
@@ -2241,31 +2442,31 @@
       });
       const csvText = "\uFEFF" + [head.join(","), ...rows].join("\n");
 
-      if (isNativeCapacitor()) {
-        const cap = window.Capacitor;
-        const Filesystem = cap.Plugins && cap.Plugins.Filesystem;
-        const Directory = cap.Plugins && cap.Plugins.Directory;
-        const Share = cap.Plugins && cap.Plugins.Share;
-        if (Filesystem && Directory) {
-          try {
-            if (Filesystem.requestPermissions) await Filesystem.requestPermissions();
-            const saved = await Filesystem.writeFile({
-              path: "ResQ-Power-Stock.csv",
-              data: textToBase64Utf8(csvText),
-              directory: Directory.Documents
-            });
-            if (Share && saved && saved.uri) {
-              await Share.share({
+      const native = getCapacitorPlugins();
+      if (native && native.Filesystem) {
+        try {
+          const saved = await saveBase64ToAndroid(
+            native.Filesystem,
+            native.Directory,
+            "ResQ-Power-Stock.csv",
+            textToBase64Utf8(csvText),
+            "text/csv"
+          );
+          if (native.Share && saved.res && saved.res.uri) {
+            try {
+              await native.Share.share({
                 title: "ResQ-Power-Stock.csv",
                 text: "ResQ-Power-Stock.csv",
-                url: saved.uri,
+                url: saved.res.uri,
                 dialogTitle: "ResQ-Power-Stock.csv"
               });
               return;
-            }
-          } catch (err) {
-            console.error("CSV save error:", err);
+            } catch (_) {}
           }
+          alert(t().savedMsg(saved.label));
+          return;
+        } catch (err) {
+          console.error("CSV save error:", err);
         }
       }
 
@@ -2392,6 +2593,7 @@
     applyLanguage();
     applyTheme(localStorage.getItem(THEME_KEY) || "dark");
     renderAll();
+    runSplashLoader();
   </script>
 </body>
 </html>
