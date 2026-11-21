@@ -637,7 +637,6 @@
         text-align: center;
       }
 
-      /* Hide detail cells by default on mobile */
       .main-table tbody tr:not(.empty-row) td.detail-col,
       .modal-table tbody tr:not(.empty-row) td.m-detail {
         display: none;
@@ -652,7 +651,6 @@
         font-size: 0.85rem;
       }
 
-      /* Show detail cells when expanded */
       .main-table tbody tr.open:not(.empty-row) td.detail-col,
       .modal-table tbody tr.m-open:not(.empty-row) td.m-detail {
         display: flex;
@@ -677,7 +675,6 @@
         margin-bottom: 4px;
       }
 
-      /* Summary header: Name + Size/Sub on left, Dropdown Icon on right */
       .main-table tbody tr:not(.empty-row) td.td-item,
       .modal-table tbody tr:not(.empty-row) td.m-head-cell {
         display: flex;
@@ -734,7 +731,6 @@
         grid-template-columns: 1fr;
       }
 
-      /* Single-page non-sliding slip summary layout on mobile */
       .slip-table {
         min-width: 0;
         width: 100%;
@@ -915,6 +911,7 @@
       }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
   <!-- Slide-out 3-Line Menu Drawer -->
@@ -1183,7 +1180,7 @@
 
       <div class="slip-btns no-print">
         <button type="button" class="btn-outline" id="closeSlip">Close</button>
-        <button type="button" class="btn-primary" id="savePdfBtn">Download PDF / Print</button>
+        <button type="button" class="btn-primary" id="savePdfBtn">Download PDF</button>
       </div>
     </div>
   </div>
@@ -1286,7 +1283,9 @@
         sSign1: "स्टोर हस्ताक्षर",
         sSign2: "प्राप्तकर्ता हस्ताक्षर",
         closeBtn: "बंद करें",
-        pdfBtn: "PDF डाउनलोड / प्रिंट करें",
+        pdfBtn: "PDF डाउनलोड",
+        savedMsg: (path) => `PDF सेव हो गई: ${path}`,
+        pdfFailMsg: "PDF जनरेट या सेव करने में समस्या आई।",
         mAllTitle: "कुल आइटम सूची",
         mIssueTitle: "इश्यू मात्रा सूची",
         mHistTitle: "इश्यू हिस्ट्री",
@@ -1383,7 +1382,9 @@
         sSign1: "Store Signature",
         sSign2: "Receiver Signature",
         closeBtn: "Close",
-        pdfBtn: "Download PDF / Print",
+        pdfBtn: "Download PDF",
+        savedMsg: (path) => `Saved PDF: ${path}`,
+        pdfFailMsg: "Failed to generate or save PDF.",
         mAllTitle: "Total Items List",
         mIssueTitle: "Issue Quantity List",
         mHistTitle: "Issued History",
@@ -1414,6 +1415,148 @@
 
     function t() {
       return i18n[currentLang] || i18n.en;
+    }
+
+    function isNativeCapacitor() {
+      const cap = window.Capacitor;
+      return Boolean(cap && typeof cap.isNativePlatform === "function" && cap.isNativePlatform());
+    }
+
+    function textToBase64Utf8(str) {
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i++) {
+        bin += String.fromCharCode(bytes[i]);
+      }
+      return btoa(bin);
+    }
+
+    function cleanPdfText(v) {
+      return String(v ?? "-")
+        .replace(/[^\x20-\x7E]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim() || "-";
+    }
+
+    function createSlipPdfDoc(slip) {
+      const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+      if (!jsPDFCtor) return null;
+
+      const doc = new jsPDFCtor({ orientation: "portrait", unit: "mm", format: "a4" });
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("ResQ Power", 14, 18);
+
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text("RELIABLE, ECONOMICAL SAFE & QUALITY POWER", 14, 23);
+
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text("Material Issue Slip", 196, 18, { align: "right" });
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Slip No.: ${cleanPdfText(slip.no)}`, 196, 24, { align: "right" });
+      doc.text(`Date/Time: ${cleanPdfText(slip.time)}`, 196, 29, { align: "right" });
+
+      doc.setDrawColor(180);
+      doc.line(14, 34, 196, 34);
+
+      doc.setFontSize(10);
+      doc.text(`Issued To: ${cleanPdfText(slip.party)}`, 14, 43);
+      doc.text(`Column / Category: ${cleanPdfText(slip.col)}`, 108, 43);
+      doc.text(`Item: ${cleanPdfText(slip.itemName)}`, 14, 51);
+      doc.text(`Details: ${cleanPdfText(slip.spec)}`, 108, 51);
+
+      doc.setFillColor(243, 244, 246);
+      doc.rect(14, 60, 182, 9, "F");
+      doc.setFont("helvetica", "bold");
+      doc.text("Total Qty", 16, 66);
+      doc.text("Issue Now (-)", 68, 66);
+      doc.text("Total Issue (-)", 118, 66);
+      doc.text("Remaining", 166, 66);
+
+      doc.setFont("helvetica", "normal");
+      doc.rect(14, 69, 182, 10);
+      doc.text(cleanPdfText(slip.total), 16, 75.5);
+      doc.text(cleanPdfText(slip.issueNow), 68, 75.5);
+      doc.text(cleanPdfText(slip.issueAll), 118, 75.5);
+      doc.setFont("helvetica", "bold");
+      doc.text(cleanPdfText(slip.rem), 166, 75.5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text("Store Signature", 14, 105);
+      doc.text("Receiver Signature", 150, 105);
+
+      return doc;
+    }
+
+    async function handleSavePdfOrPrint() {
+      const trs = t();
+      const slipForExport = lastSlipData || {
+        no: document.getElementById("sNo").textContent || "-",
+        time: document.getElementById("sTime").textContent || "-",
+        party: document.getElementById("sParty").textContent || "-",
+        col: document.getElementById("sCol").textContent || "-",
+        itemName: document.getElementById("sItem").textContent || "-",
+        spec: document.getElementById("sSpec").textContent || "-",
+        total: document.getElementById("sTotal").textContent || "-",
+        issueNow: document.getElementById("sIssueNow").textContent || "-",
+        issueAll: document.getElementById("sIssueAll").textContent || "-",
+        rem: document.getElementById("sRem").textContent || "-"
+      };
+
+      const safeNo = String(slipForExport.no || "Slip").replace(/[^a-zA-Z0-9_-]/g, "_");
+      const fileName = `${safeNo}-Issue-Slip.pdf`;
+      const doc = createSlipPdfDoc(slipForExport);
+
+      if (!doc) {
+        alert(trs.pdfFailMsg);
+        return;
+      }
+
+      if (isNativeCapacitor()) {
+        const cap = window.Capacitor;
+        const Filesystem = cap.Plugins && cap.Plugins.Filesystem;
+        const Directory = cap.Plugins && cap.Plugins.Directory;
+        const Share = cap.Plugins && cap.Plugins.Share;
+
+        if (Filesystem && Directory) {
+          try {
+            if (Filesystem.requestPermissions) {
+              await Filesystem.requestPermissions();
+            }
+            const dataUri = doc.output("datauristring");
+            const base64Pdf = String(dataUri).split(",")[1] || "";
+
+            const saved = await Filesystem.writeFile({
+              path: fileName,
+              data: base64Pdf,
+              directory: Directory.Documents
+            });
+
+            if (Share && saved && saved.uri) {
+              await Share.share({
+                title: fileName,
+                text: fileName,
+                url: saved.uri,
+                dialogTitle: fileName
+              });
+              return;
+            }
+            alert(trs.savedMsg("Documents/" + fileName));
+            return;
+          } catch (err) {
+            console.error("Capacitor PDF save error:", err);
+            alert(trs.pdfFailMsg);
+            return;
+          }
+        }
+      }
+
+      doc.save(fileName);
     }
 
     function isLowStock10(item) {
@@ -2062,6 +2205,7 @@
         alert(t().noSlip);
         return;
       }
+      lastSlipData = d;
       document.getElementById("sNo").textContent = d.no;
       document.getElementById("sTime").textContent = d.time;
       document.getElementById("sParty").textContent = d.party;
@@ -2086,7 +2230,7 @@
       renderAll();
     }
 
-    function downloadCsv() {
+    async function downloadCsv() {
       const head = ["Sr.", "Column", "Item", "Details", "Unit", "Total Qty", "Issue (-)", "Remaining"];
       const rows = sortLowStockFirst(state.items).map((i, idx) => {
         const tot = Number(i.totalQty) || 0;
@@ -2095,7 +2239,37 @@
           .map(v => `"${String(v).replace(/"/g, '""')}"`)
           .join(",");
       });
-      const blob = new Blob(["\uFEFF" + [head.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
+      const csvText = "\uFEFF" + [head.join(","), ...rows].join("\n");
+
+      if (isNativeCapacitor()) {
+        const cap = window.Capacitor;
+        const Filesystem = cap.Plugins && cap.Plugins.Filesystem;
+        const Directory = cap.Plugins && cap.Plugins.Directory;
+        const Share = cap.Plugins && cap.Plugins.Share;
+        if (Filesystem && Directory) {
+          try {
+            if (Filesystem.requestPermissions) await Filesystem.requestPermissions();
+            const saved = await Filesystem.writeFile({
+              path: "ResQ-Power-Stock.csv",
+              data: textToBase64Utf8(csvText),
+              directory: Directory.Documents
+            });
+            if (Share && saved && saved.uri) {
+              await Share.share({
+                title: "ResQ-Power-Stock.csv",
+                text: "ResQ-Power-Stock.csv",
+                url: saved.uri,
+                dialogTitle: "ResQ-Power-Stock.csv"
+              });
+              return;
+            }
+          } catch (err) {
+            console.error("CSV save error:", err);
+          }
+        }
+      }
+
+      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -2194,7 +2368,7 @@
     document.getElementById("slipModal").addEventListener("click", (e) => {
       if (e.target.id === "slipModal") e.target.classList.remove("show");
     });
-    document.getElementById("savePdfBtn").addEventListener("click", () => window.print());
+    document.getElementById("savePdfBtn").addEventListener("click", handleSavePdfOrPrint);
 
     document.getElementById("clearAllBtn").addEventListener("click", () => {
       if (!confirm(t().confirmClear)) return;
