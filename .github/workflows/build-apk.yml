@@ -11,18 +11,23 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v4
 
-      - name: Move Web Files to www
+      - name: Prepare Web Files
         run: |
           mkdir -p www
-          mv index.html www/ 2>/dev/null || true
-          mv style.css www/ 2>/dev/null || true
-          mv script.js www/ 2>/dev/null || true
-          mv app.js www/ 2>/dev/null || true
+          if [ -f "index.html" ]; then
+            cp index.html www/index.html
+          elif [ -f "Index.html" ]; then
+            cp Index.html www/index.html
+          fi
+          cp style.css www/ 2>/dev/null || true
+          cp script.js www/ 2>/dev/null || true
+          cp app.js www/ 2>/dev/null || true
+          test -f www/index.html && echo "www/index.html is ready"
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -33,13 +38,13 @@ jobs:
       - name: Build Android App
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install --no-audit --no-fund @capacitor/core @capacitor/cli @capacitor/android
           npx cap init "ResQPowerStore" "com.resq.powerstore" --web-dir=www
           npx cap add android
           npx cap sync android
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
