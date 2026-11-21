@@ -55,10 +55,16 @@ jobs:
           if (!xml.includes("READ_EXTERNAL_STORAGE")) {
             xml = xml.replace(
               "<application",
-              "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <application"
+              "<uses-permission android:name=\"android.permission.INTERNET\" />\n    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <application"
             );
-            fs.writeFileSync(path, xml, "utf8");
           }
+          if (!xml.includes("android:requestLegacyExternalStorage")) {
+            xml = xml.replace(
+              "<application",
+              "<application android:requestLegacyExternalStorage=\"true\""
+            );
+          }
+          fs.writeFileSync(path, xml, "utf8");
           '
           cd android
           chmod +x gradlew
@@ -69,4 +75,3 @@ jobs:
         with:
           name: ResQ-Power-Store-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          
