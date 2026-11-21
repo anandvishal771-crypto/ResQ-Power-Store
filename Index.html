@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResQ Power — Store Stock & Issue Slip</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-soft: #f9fafb;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --brand-dark: #1f2937;
+      --ok-bg: #ecfdf5;
+      --ok-fg: #047857;
+      --ok-line: #a7f3d0;
+      --warn-bg: #fef2f2;
+      --warn-fg: #b91c1c;
+      --warn-line: #fecaca;
+      --low-row-bg: rgba(239, 68, 68, 0.11);
+      --low-row-line: #ef4444;
+      --backdrop: rgba(17, 24, 39, 0.55);
+      --logo-ink: #111827;
+      --logo-tag: #374151;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #000000;
+      --surface: #0d0d0d;
+      --surface-soft: #161616;
+      --ink: #f5f5f5;
+      --muted: #a3a3a3;
+      --line: #262626;
+      --brand-dark: #ffffff;
+      --ok-bg: rgba(16, 185, 129, 0.14);
+      --ok-fg: #34d399;
+      --ok-line: rgba(52, 211, 153, 0.35);
+      --warn-bg: rgba(239, 68, 68, 0.16);
+      --warn-fg: #f87171;
+      --warn-line: rgba(248, 113, 113, 0.35);
+      --low-row-bg: rgba(239, 68, 68, 0.18);
+      --low-row-line: #f87171;
+      --backdrop: rgba(0, 0, 0, 0.82);
+      --logo-ink: #ffffff;
+      --logo-tag: #d4d4d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      padding: 14px;
+      line-height: 1.45;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .app {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    /* Low Stock (<= 10%) Red Highlight */
+    tr.low-stock-row td {
+      background: var(--low-row-bg) !important;
+      border-color: var(--low-row-line) !important;
+    }
+
+    /* Dropdown Search Box at Very Top */
+    .top-dd-search {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .top-dd-trigger {
+      width: 100%;
+      background: var(--surface);
+      color: var(--ink);
+      border: none;
+      border-radius: 0;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .top-dd-trigger-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .top-dd-trigger-summary {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-dd-arrow {
+      font-size: 0.85rem;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .top-dd-panel {
+      display: none;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
+    .top-dd-search.open .top-dd-panel {
+      display: block;
+    }
+
+    .dd-field-row {
+      display: grid;
+      grid-template-columns: 125px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .dd-field-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .dd-action-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .slip-search-results {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slip-search-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .slip-search-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.84rem;
+    }
+
+    .slip-search-line1 {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .slip-search-line2 {
+      font-size: 0.79rem;
+      color: var(--muted);
+    }
+
+    /* Top Header: 3-Line Menu Top-Left, Logo Top-Right, Title Centered */
+    .header {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .hamburger-btn {
+      width: 38px;
+      height: 36px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4.5px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .hamburger-btn span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+    }
+
+    /* Compact Transparent ResQ Power Logo */
+    .logo-box {
+      background: transparent;
+      border: none;
+      padding: 2px 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-end;
+      color: var(--logo-ink);
+    }
+
+    .logo-main-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .logo-word {
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--logo-ink);
+      line-height: 1;
+    }
+
+    .logo-tagline {
+      font-size: 0.44rem;
+      font-weight: 700;
+      letter-spacing: 0.35px;
+      color: var(--logo-tag);
+      text-transform: uppercase;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .logo-tagline .r {
+      color: #dc2626;
+    }
+
+    .header-center {
+      text-align: center;
+      width: 100%;
+      padding-top: 2px;
+    }
+
+    .header-center .title {
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .header-center .sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Slide-out Drawer Menu */
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--backdrop);
+      z-index: 950;
+    }
+
+    .drawer-backdrop.open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -305px;
+      width: 290px;
+      max-width: 86vw;
+      height: 100%;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      z-index: 960;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      transition: left 0.2s ease;
+    }
+
+    .drawer.open {
+      left: 0;
+    }
+
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 4px;
+    }
+
+    .drawer-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .drawer-section {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 8px;
+      padding: 0 4px;
+    }
+
+    .drawer-item {
+      width: 100%;
+      text-align: left;
+      background: var(--surface-soft);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px 11px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer-item:hover {
+      border-color: var(--brand-dark);
+    }
+
+    .drawer-lang-row {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .lang-choice-btn {
+      flex: 1;
+      background: var(--surface-soft);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .lang-choice-btn.active {
+      background: #111827;
+      color: #ffffff;
+      border-color: #111827;
+    }
+
+    html[data-theme="dark"] .lang-choice-btn.active {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+
+    /* Cards & Controls */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 14px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-top h2 {
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      font-size: 0.88rem;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--brand-dark);
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: #111827;
+      color: #ffffff;
+    }
+
+    html[data-theme="dark"] .btn-primary {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .btn-issue {
+      background: var(--warn-bg);
+      color: var(--warn-fg);
+      border-color: var(--warn-line);
+    }
+
+    .btn-add {
+      background: var(--ok-bg);
+      color: var(--ok-fg);
+      border-color: var(--ok-line);
+    }
+
+    .btn-outline {
+      background: var(--surface-soft);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .btn-del {
+      background: var(--warn-bg);
+      color: var(--warn-fg);
+      border-color: var(--warn-line);
+    }
+
+    .btn-sm {
+      padding: 5px 8px;
+      font-size: 0.78rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .toolbar input, .toolbar select {
+      max-width: 240px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+      background: var(--surface);
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      font-size: 0.86rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--surface-soft);
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .total-fixed { font-weight: 800; }
+    .issue-val { font-weight: 700; color: var(--warn-fg); }
+
+    .rem-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-weight: 800;
+      background: var(--ok-bg);
+      color: var(--ok-fg);
+      border: 1px solid var(--ok-line);
+    }
+
+    .rem-low {
+      background: var(--warn-bg);
+      color: var(--warn-fg);
+      border-color: var(--warn-line);
+    }
+
+    .op-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .op-qty { width: 72px !important; padding: 5px 7px !important; }
+    .op-to  { width: 120px !important; padding: 5px 7px !important; }
+
+    .dd-cell-btn {
+      display: none;
+    }
+
+    /* Mobile Collapsible Cards for Main Table & Modal List Table */
+    @media (max-width: 768px) {
+      .dd-field-row {
+        grid-template-columns: 105px 1fr;
+        gap: 8px;
+      }
+
+      .toolbar input, .toolbar select {
+        max-width: 100%;
+      }
+
+      .table-wrap {
+        overflow-x: visible;
+        border: none;
+        border-radius: 0;
+      }
+
+      .main-table,
+      .modal-table {
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        background: transparent;
+      }
+
+      .main-table thead,
+      .modal-table thead {
+        display: none;
+      }
+
+      .main-table tbody tr,
+      .modal-table tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 12px;
+        gap: 6px;
+      }
+
+      .main-table tbody tr.low-stock-row,
+      .modal-table tbody tr.low-stock-row {
+        background: var(--low-row-bg);
+        border-color: var(--low-row-line);
+      }
+
+      .main-table tbody tr.empty-row,
+      .modal-table tbody tr.empty-row {
+        display: block;
+        text-align: center;
+        padding: 16px 10px;
+      }
+
+      .main-table tbody tr.empty-row td,
+      .modal-table tbody tr.empty-row td {
+        display: block;
+        border: none;
+        padding: 0;
+        text-align: center;
+      }
+
+      /* Hide detail cells by default on mobile */
+      .main-table tbody tr:not(.empty-row) td.detail-col,
+      .modal-table tbody tr:not(.empty-row) td.m-detail {
+        display: none;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        border: none;
+        border-top: 1px solid var(--line);
+        padding: 7px 0;
+        text-align: right;
+        font-size: 0.85rem;
+      }
+
+      /* Show detail cells when expanded */
+      .main-table tbody tr.open:not(.empty-row) td.detail-col,
+      .modal-table tbody tr.m-open:not(.empty-row) td.m-detail {
+        display: flex;
+      }
+
+      .main-table tbody tr:not(.empty-row) td.detail-col::before,
+      .modal-table tbody tr:not(.empty-row) td.m-detail::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--muted);
+        text-align: left;
+        flex-shrink: 0;
+      }
+
+      .main-table tbody tr.open:not(.empty-row) td.td-action {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: left;
+      }
+
+      .main-table tbody tr.open:not(.empty-row) td.td-action::before {
+        margin-bottom: 4px;
+      }
+
+      /* Summary header: Name + Size/Sub on left, Dropdown Icon on right */
+      .main-table tbody tr:not(.empty-row) td.td-item,
+      .modal-table tbody tr:not(.empty-row) td.m-head-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        flex: 1 1 auto;
+        width: calc(100% - 44px);
+        border: none;
+        padding: 0;
+        text-align: left;
+      }
+
+      .mobile-spec-sub {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .main-table tbody tr:not(.empty-row) td.td-dd,
+      .modal-table tbody tr:not(.empty-row) td.m-dd-cell {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        width: 36px;
+        border: none;
+        padding: 0;
+      }
+
+      .dd-cell-btn {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        color: var(--ink);
+        font-size: 0.85rem;
+        padding: 0;
+      }
+
+      .op-group {
+        width: 100%;
+      }
+
+      .op-qty, .op-to {
+        flex: 1 1 90px;
+        width: auto !important;
+      }
+
+      .slip-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* Single-page non-sliding slip summary layout on mobile */
+      .slip-table {
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        overflow: hidden;
+      }
+
+      .slip-table thead {
+        display: none;
+      }
+
+      .slip-table tbody,
+      .slip-table tr {
+        display: block;
+        width: 100%;
+      }
+
+      .slip-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid var(--line);
+        padding: 8px 11px;
+        text-align: right;
+        font-size: 0.85rem;
+      }
+
+      .slip-table td:last-child {
+        border-bottom: none;
+      }
+
+      .slip-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--muted);
+        text-align: left;
+        flex-shrink: 0;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .th-dd,
+      .td-dd,
+      .m-dd-cell,
+      .mobile-spec-sub {
+        display: none;
+      }
+    }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--backdrop);
+      z-index: 1000;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal.show {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .modal-box, .slip {
+      background: var(--surface);
+      color: var(--ink);
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .modal-box { max-width: 780px; }
+    .slip { max-width: 700px; }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
+    .modal-top h3 {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .modal-table {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .slip-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .slip .logo-box {
+      align-items: flex-start;
+    }
+
+    .slip-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 14px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+
+    .slip-table {
+      width: 100%;
+      min-width: 0;
+      margin-bottom: 14px;
+    }
+
+    .slip-signs {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 28px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .slip-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #slipModal, #slipModal * {
+        visibility: visible !important;
+      }
+      #slipModal {
+        position: static;
+        background: transparent;
+        padding: 0;
+      }
+      .slip {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: none;
+        margin: 0;
+        padding: 8px;
+        max-width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Slide-out 3-Line Menu Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="navDrawer" aria-label="Menu">
+    <div class="drawer-head">
+      <span class="drawer-title" id="dTitle">ResQ Power Menu</span>
+      <button type="button" class="btn-outline btn-sm" id="closeDrawerBtn">✕</button>
+    </div>
+
+    <div class="drawer-section" id="dSecLists">Lists &amp; History</div>
+    <button type="button" class="drawer-item" onclick="openListModal('ALL_ITEMS')">
+      <span id="dBtnItems">Total Items List</span>
+      <span id="mCountItems">0</span>
+    </button>
+    <button type="button" class="drawer-item" onclick="openListModal('ISSUE_ITEMS')">
+      <span id="dBtnIssue">Issue Quantity List</span>
+      <span id="mCountIssue">0</span>
+    </button>
+    <button type="button" class="drawer-item" onclick="openListModal('ISSUE_HISTORY')">
+      <span id="dBtnHist">Issued History</span>
+      <span id="mCountHist">0</span>
+    </button>
+    <button type="button" class="drawer-item" onclick="openListModal('REM_ITEMS')">
+      <span id="dBtnRem">Remaining Qty List</span>
+      <span id="mCountRem">0</span>
+    </button>
+
+    <div class="drawer-section" id="dSecPref">Language &amp; Theme</div>
+    <div class="drawer-lang-row" role="group" aria-label="Language">
+      <button type="button" class="lang-choice-btn" id="langOptDefault" onclick="setLanguageMode('default')">Default</button>
+      <button type="button" class="lang-choice-btn" id="langOptHi" onclick="setLanguageMode('hi')">हिंदी</button>
+      <button type="button" class="lang-choice-btn" id="langOptEn" onclick="setLanguageMode('en')">English</button>
+    </div>
+    <button type="button" class="drawer-item" id="drawerThemeBtn">
+      <span id="dBtnThemeLabel">Theme</span>
+      <span id="drawerThemeVal">Dark</span>
+    </button>
+
+    <div class="drawer-section" id="dSecDocs">Slip &amp; Export</div>
+    <button type="button" class="drawer-item" id="drawerSlipBtn">
+      <span id="dBtnSlip">Last Issue Slip / PDF</span>
+      <span>PDF</span>
+    </button>
+    <button type="button" class="drawer-item" id="drawerCsvBtn">
+      <span id="dBtnCsv">Download CSV</span>
+      <span>CSV</span>
+    </button>
+  </aside>
+
+  <div class="app">
+    <!-- Top Search Box Acting as a Dropdown Menu -->
+    <section class="top-dd-search" id="topDdSearch">
+      <button type="button" class="top-dd-trigger" id="topDdTrigger" aria-expanded="false">
+        <span class="top-dd-trigger-left">
+          <span>🔍</span>
+          <span id="topDdLabel">Search Issue Slip</span>
+          <span class="top-dd-trigger-summary" id="topDdSummary">Slip Number / Date / Name</span>
+        </span>
+        <span class="top-dd-arrow" id="topDdArrow">▾</span>
+      </button>
+
+      <div class="top-dd-panel" id="topDdPanel">
+        <div class="dd-field-row">
+          <span class="dd-field-label" id="lblSlipNo">Slip Number</span>
+          <input type="text" id="inSlipNo" />
+        </div>
+        <div class="dd-field-row">
+          <span class="dd-field-label" id="lblDate">Date</span>
+          <input type="text" id="inDate" />
+        </div>
+        <div class="dd-field-row">
+          <span class="dd-field-label" id="lblNameField">Name</span>
+          <input type="text" id="inPersonName" />
+        </div>
+
+        <div class="dd-action-row">
+          <button type="button" class="btn-outline btn-sm" id="btnResetDdSearch">Clear</button>
+          <button type="button" class="btn-primary btn-sm" id="btnRunDdSearch">Search</button>
+        </div>
+
+        <div class="slip-search-results" id="slipSearchResults"></div>
+      </div>
+    </section>
+
+    <!-- Top Header -->
+    <header class="header">
+      <div class="header-top-row">
+        <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Open Menu" title="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="logo-box" aria-label="ResQ Power">
+          <div class="logo-main-row">
+            <span class="logo-word">Res</span>
+            <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 6C33.94 6 42 14.06 42 24C42 28.4 40.42 32.43 37.8 35.55" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M10.2 35.55C7.58 32.43 6 28.4 6 24C6 14.06 14.06 6 24 6" stroke="#ea580c" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="24" cy="24" r="14.5" stroke="#dc2626" stroke-width="2" stroke-dasharray="72 18"/>
+              <polygon points="18,17 25,17 31,26 37,26 26,28 21,21 15,21" fill="#dc2626"/>
+              <polygon points="22,25 27,25 39,37 25,29" fill="#dc2626"/>
+            </svg>
+            <span class="logo-word">Power</span>
+          </div>
+          <div class="logo-tagline">
+            <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="title" id="uiHeaderTitle">Store Material Stock Register</div>
+        <div class="sub" id="uiHeaderSub">Lists, Language &amp; Theme inside 3-line menu</div>
+      </div>
+    </header>
+
+    <!-- Add Material -->
+    <section class="card">
+      <div class="card-top">
+        <h2 id="uiAddTitle">Add New Item / Bolt</h2>
+      </div>
+      <form class="form-grid" id="addForm">
+        <div>
+          <label for="inName" id="lblName">Item Name</label>
+          <input type="text" id="inName" placeholder="e.g. M6, M10 Bolt" required />
+        </div>
+        <div>
+          <label for="inCol" id="lblCol">Column / Category</label>
+          <input type="text" id="inCol" list="colList" placeholder="e.g. Bolt, Nut, Cable" required />
+          <datalist id="colList"></datalist>
+        </div>
+        <div>
+          <label for="inUnit" id="lblUnit">Unit</label>
+          <select id="inUnit"></select>
+        </div>
+        <div>
+          <label for="inTotal" id="lblTotal">Total Qty</label>
+          <input type="number" id="inTotal" min="0" step="any" placeholder="e.g. 50" required />
+        </div>
+        <div>
+          <label for="inSpec" id="lblSpec">Details / Size</label>
+          <input type="text" id="inSpec" placeholder="e.g. 25mm, 8.8 Grade" />
+        </div>
+        <div>
+          <button type="submit" class="btn-primary" style="width:100%;" id="btnAddSubmit">+ Add Item</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Main Stock Table -->
+    <section class="card">
+      <div class="card-top">
+        <h2 id="uiTableTitle">Stock, Issue &amp; Remaining Table</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn-outline" id="lastSlipBtn">Last Issue Slip / PDF</button>
+          <button type="button" class="btn-outline" id="csvBtn">Download CSV</button>
+          <button type="button" class="btn-outline" id="clearAllBtn">Clear All</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="Search item or column..." />
+        <select id="colFilter">
+          <option value="ALL">All Columns / Categories</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th id="thSr">Sr.</th>
+              <th id="thCol">Column</th>
+              <th id="thItem">Item</th>
+              <th id="thSpec">Details</th>
+              <th class="num" id="thTotal">Total Qty</th>
+              <th class="num" id="thIssue">Issue (-)</th>
+              <th class="num" id="thRem">Remaining</th>
+              <th id="thAct">Enter Qty &amp; Issue (-) or Add Total (+)</th>
+              <th id="thDel">Delete</th>
+              <th class="th-dd"></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Separate List / History Detail Modal -->
+  <div class="modal" id="listModal">
+    <div class="modal-box">
+      <div class="modal-top">
+        <h3 id="listModalTitle">List</h3>
+        <button type="button" class="btn-outline btn-sm" id="closeListModal">Close</button>
+      </div>
+      <div class="table-wrap">
+        <table class="modal-table">
+          <thead id="listModalHead"></thead>
+          <tbody id="listModalBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issue Slip / PDF Modal -->
+  <div class="modal" id="slipModal">
+    <div class="slip">
+      <div class="slip-top">
+        <div class="logo-box">
+          <div class="logo-main-row">
+            <span class="logo-word">Res</span>
+            <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 6C33.94 6 42 14.06 42 24C42 28.4 40.42 32.43 37.8 35.55" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M10.2 35.55C7.58 32.43 6 28.4 6 24C6 14.06 14.06 6 24 6" stroke="#ea580c" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="24" cy="24" r="14.5" stroke="#dc2626" stroke-width="2" stroke-dasharray="72 18"/>
+              <polygon points="18,17 25,17 31,26 37,26 26,28 21,21 15,21" fill="#dc2626"/>
+              <polygon points="22,25 27,25 39,37 25,29" fill="#dc2626"/>
+            </svg>
+            <span class="logo-word">Power</span>
+          </div>
+          <div class="logo-tagline">
+            <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
+          </div>
+        </div>
+
+        <div style="text-align:right; font-size:0.82rem;">
+          <div><strong id="sTitleTxt">Material Issue Slip</strong></div>
+          <div><strong id="sNoLbl">Slip No.:</strong> <span id="sNo">-</span></div>
+          <div><strong id="sTimeLbl">Date/Time:</strong> <span id="sTime">-</span></div>
+        </div>
+      </div>
+
+      <div class="slip-grid">
+        <div><strong id="sPartyLbl">Issued To:</strong> <span id="sParty">-</span></div>
+        <div><strong id="sColLbl">Column / Category:</strong> <span id="sCol">-</span></div>
+        <div><strong id="sItemLbl">Item:</strong> <span id="sItem">-</span></div>
+        <div><strong id="sSpecLbl">Details:</strong> <span id="sSpec">-</span></div>
+      </div>
+
+      <table class="slip-table">
+        <thead>
+          <tr>
+            <th id="sThTot">Total Qty (Fixed)</th>
+            <th class="num" id="sThIssueNow">Issue Now (-)</th>
+            <th class="num" id="sThIssueAll">Total Issue (-)</th>
+            <th class="num" id="sThRem">Remaining Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="sTotal" data-label="Total Qty (Fixed)">-</td>
+            <td class="num issue-val" id="sIssueNow" data-label="Issue Now (-)">-</td>
+            <td class="num issue-val" id="sIssueAll" data-label="Total Issue (-)">-</td>
+            <td class="num" data-label="Remaining Qty"><strong id="sRem">-</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="slip-signs">
+        <span id="sSign1">Store Signature</span>
+        <span id="sSign2">Receiver Signature</span>
+      </div>
+
+      <div class="slip-btns no-print">
+        <button type="button" class="btn-outline" id="closeSlip">Close</button>
+        <button type="button" class="btn-primary" id="savePdfBtn">Download PDF / Print</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "resq_power_store_v16";
+    const THEME_KEY = "resq_power_theme_v2";
+    const LANG_MODE_KEY = "resq_power_lang_mode_v1";
+    const SLIP_KEY = "resq_power_last_slip_v16";
+
+    const i18n = {
+      hi: {
+        locale: "hi-IN",
+        headerTitle: "स्टोर मटेरियल स्टॉक रजिस्टर",
+        headerSub: "सूचियां, भाषा व थीम 3-लाइन मेनू के अंदर",
+        topDdLabel: "इश्यू स्लिप खोजें",
+        topDdSummary: "स्लिप नंबर / दिनांक / नाम",
+        lblSlipNo: "स्लिप नंबर",
+        lblDate: "दिनांक",
+        lblNameField: "नाम",
+        btnResetDdSearch: "साफ करें",
+        btnRunDdSearch: "खोजें",
+        alertEmptySearch: "कृपया स्लिप नंबर, दिनांक या नाम में से कम से कम एक जानकारी भरें।",
+        noSlipMatch: "इस जानकारी से जुड़ी कोई इश्यू स्लिप नहीं मिली।",
+        openSlipBtn: "स्लिप / PDF खोलें",
+        issuedToPrefix: "किसको दिया",
+        remAfterPrefix: "बची मात्रा",
+        dTitle: "ResQ Power मेनू",
+        dSecLists: "सूचियां व हिस्ट्री",
+        dBtnItems: "कुल आइटम सूची",
+        dBtnIssue: "इश्यू मात्रा सूची",
+        dBtnHist: "इश्यू हिस्ट्री",
+        dBtnRem: "बची मात्रा सूची",
+        dSecPref: "भाषा व थीम",
+        optDefault: "डिफ़ॉल्ट",
+        optHi: "हिंदी",
+        optEn: "English",
+        dBtnThemeLabel: "थीम",
+        themeDark: "डार्क",
+        themeLight: "लाइट",
+        dSecDocs: "स्लिप व एक्सपोर्ट",
+        dBtnSlip: "पिछली इश्यू स्लिप / PDF",
+        dBtnCsv: "CSV डाउनलोड करें",
+        addTitle: "नया आइटम / बोल्ट जोड़ें",
+        lblName: "आइटम का नाम",
+        phName: "जैसे M6, M10 बोल्ट",
+        lblCol: "कॉलम / कैटेगरी",
+        phCol: "जैसे बोल्ट, नट, केबल",
+        colSuggestions: ["बोल्ट", "नट व वॉशर", "केबल व वायर", "हार्डवेयर"],
+        lblUnit: "यूनिट",
+        units: [
+          { value: "PCS", label: "पीस" },
+          { value: "MTR", label: "मीटर" },
+          { value: "KG", label: "किलो" },
+          { value: "SET", label: "सेट" }
+        ],
+        lblTotal: "कुल मात्रा",
+        phTotal: "जैसे 50",
+        lblSpec: "विवरण / साइज",
+        phSpec: "जैसे 25mm, 8.8 ग्रेड",
+        btnAddSubmit: "+ आइटम जोड़ें",
+        tableTitle: "स्टॉक, इश्यू व बची मात्रा टेबल",
+        lastSlipBtn: "पिछली इश्यू स्लिप / PDF",
+        csvBtn: "CSV डाउनलोड करें",
+        clearAllBtn: "सब साफ करें",
+        phSearch: "आइटम या कॉलम खोजें...",
+        allCols: "सभी कॉलम / कैटेगरी",
+        thSr: "क्र.",
+        thCol: "कॉलम",
+        thItem: "आइटम",
+        thSpec: "विवरण",
+        thTotal: "कुल मात्रा",
+        thIssue: "इश्यू (-)",
+        thRem: "बची मात्रा",
+        thAct: "मात्रा डालें और इश्यू (-) या कुल जोड़ें (+)",
+        thDel: "हटाएं",
+        phQty: "मात्रा",
+        phTo: "किसको दिया",
+        btnIssue: "- इश्यू",
+        btnPlusTotal: "+ कुल",
+        btnDelete: "हटाएं",
+        emptyTable: "अभी कोई आइटम नहीं है। ऊपर से नया आइटम (जैसे M6, M10 बोल्ट) जोड़ें।",
+        confirmDelete: (name) => `क्या आप "${name}" को स्टॉक से हटाना चाहते हैं?`,
+        confirmClear: "क्या आप सारा स्टॉक और हिस्ट्री डेटा साफ करना चाहते हैं?",
+        alertQty: "कृपया 0 से बड़ी सही मात्रा डालें।",
+        confirmOverIssue: (rem, unit, val) => `बची मात्रा ${rem} ${unit} है, लेकिन आप ${val} ${unit} इश्यू कर रहे हैं। क्या जारी रखें?`,
+        defaultReceiver: "स्टोर इश्यू",
+        noSlip: "अभी कोई इश्यू स्लिप उपलब्ध नहीं है।",
+        sTitleTxt: "मटेरियल इश्यू स्लिप",
+        sNoLbl: "स्लिप नं.:",
+        sTimeLbl: "दिनांक/समय:",
+        sPartyLbl: "किसको दिया गया:",
+        sColLbl: "कॉलम / कैटेगरी:",
+        sItemLbl: "आइटम:",
+        sSpecLbl: "विवरण:",
+        sThTot: "कुल मात्रा (स्थिर)",
+        sThIssueNow: "इस बार इश्यू (-)",
+        sThIssueAll: "कुल इश्यू हुआ (-)",
+        sThRem: "अब बची मात्रा",
+        sSign1: "स्टोर हस्ताक्षर",
+        sSign2: "प्राप्तकर्ता हस्ताक्षर",
+        closeBtn: "बंद करें",
+        pdfBtn: "PDF डाउनलोड / प्रिंट करें",
+        mAllTitle: "कुल आइटम सूची",
+        mIssueTitle: "इश्यू मात्रा सूची",
+        mHistTitle: "इश्यू हिस्ट्री",
+        mRemTitle: "बची मात्रा सूची"
+      },
+      en: {
+        locale: "en-IN",
+        headerTitle: "Store Material Stock Register",
+        headerSub: "Lists, Language & Theme inside 3-line menu",
+        topDdLabel: "Search Issue Slip",
+        topDdSummary: "Slip Number / Date / Name",
+        lblSlipNo: "Slip Number",
+        lblDate: "Date",
+        lblNameField: "Name",
+        btnResetDdSearch: "Clear",
+        btnRunDdSearch: "Search",
+        alertEmptySearch: "Please enter at least one of Slip Number, Date, or Name.",
+        noSlipMatch: "No matching issue slip found.",
+        openSlipBtn: "Open Slip / PDF",
+        issuedToPrefix: "Issued To",
+        remAfterPrefix: "Remaining",
+        dTitle: "ResQ Power Menu",
+        dSecLists: "Lists & History",
+        dBtnItems: "Total Items List",
+        dBtnIssue: "Issue Quantity List",
+        dBtnHist: "Issued History",
+        dBtnRem: "Remaining Qty List",
+        dSecPref: "Language & Theme",
+        optDefault: "Default",
+        optHi: "हिंदी",
+        optEn: "English",
+        dBtnThemeLabel: "Theme",
+        themeDark: "Dark",
+        themeLight: "Light",
+        dSecDocs: "Slip & Export",
+        dBtnSlip: "Last Issue Slip / PDF",
+        dBtnCsv: "Download CSV",
+        addTitle: "Add New Item / Bolt",
+        lblName: "Item Name",
+        phName: "e.g. M6, M10 Bolt",
+        lblCol: "Column / Category",
+        phCol: "e.g. Bolt, Nut, Cable",
+        colSuggestions: ["Bolt", "Nut & Washer", "Cable & Wire", "Hardware"],
+        lblUnit: "Unit",
+        units: [
+          { value: "PCS", label: "Pcs" },
+          { value: "MTR", label: "Mtr" },
+          { value: "KG", label: "Kg" },
+          { value: "SET", label: "Set" }
+        ],
+        lblTotal: "Total Qty",
+        phTotal: "e.g. 50",
+        lblSpec: "Details / Size",
+        phSpec: "e.g. 25mm, 8.8 Grade",
+        btnAddSubmit: "+ Add Item",
+        tableTitle: "Stock, Issue & Remaining Table",
+        lastSlipBtn: "Last Issue Slip / PDF",
+        csvBtn: "Download CSV",
+        clearAllBtn: "Clear All",
+        phSearch: "Search item or column...",
+        allCols: "All Columns / Categories",
+        thSr: "Sr.",
+        thCol: "Column",
+        thItem: "Item",
+        thSpec: "Details",
+        thTotal: "Total Qty",
+        thIssue: "Issue (-)",
+        thRem: "Remaining",
+        thAct: "Enter Qty & Issue (-) or Add Total (+)",
+        thDel: "Delete",
+        phQty: "Qty",
+        phTo: "Issued to",
+        btnIssue: "- Issue",
+        btnPlusTotal: "+ Total",
+        btnDelete: "Delete",
+        emptyTable: "No items yet. Add a new item (like M6, M10 bolt) above.",
+        confirmDelete: (name) => `Delete "${name}" from stock?`,
+        confirmClear: "Clear all stock and history data?",
+        alertQty: "Please enter a valid quantity greater than 0.",
+        confirmOverIssue: (rem, unit, val) => `Remaining is ${rem} ${unit}, but issuing ${val} ${unit}. Continue?`,
+        defaultReceiver: "Store Issue",
+        noSlip: "No issue slip available yet.",
+        sTitleTxt: "Material Issue Slip",
+        sNoLbl: "Slip No.:",
+        sTimeLbl: "Date/Time:",
+        sPartyLbl: "Issued To:",
+        sColLbl: "Column / Category:",
+        sItemLbl: "Item:",
+        sSpecLbl: "Details:",
+        sThTot: "Total Qty (Fixed)",
+        sThIssueNow: "Issue Now (-)",
+        sThIssueAll: "Total Issue (-)",
+        sThRem: "Remaining Qty",
+        sSign1: "Store Signature",
+        sSign2: "Receiver Signature",
+        closeBtn: "Close",
+        pdfBtn: "Download PDF / Print",
+        mAllTitle: "Total Items List",
+        mIssueTitle: "Issue Quantity List",
+        mHistTitle: "Issued History",
+        mRemTitle: "Remaining Qty List"
+      }
+    };
+
+    const emptyState = { items: [], history: [] };
+
+    function detectDeviceLang() {
+      const list = Array.isArray(navigator.languages) && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || ""];
+      const joined = list.join(",").toLowerCase();
+      return joined.includes("hi") ? "hi" : "en";
+    }
+
+    let state = loadState();
+    let langMode = localStorage.getItem(LANG_MODE_KEY) || "default";
+    let currentLang = langMode === "default" ? detectDeviceLang() : (langMode === "en" ? "en" : "hi");
+    let slipSeq = Number(localStorage.getItem(STORAGE_KEY + "_seq") || "0");
+    let lastSlipData = loadLastSlip();
+    let openRowIds = new Set();
+    let activeModalMode = null;
+    let openModalRowIds = new Set();
+    let ddSearchOpen = false;
+    let hasExecutedDdSearch = false;
+
+    function t() {
+      return i18n[currentLang] || i18n.en;
+    }
+
+    function isLowStock10(item) {
+      const tot = Number(item.totalQty) || 0;
+      const iss = Number(item.issueQty) || 0;
+      const rem = tot - iss;
+      return tot > 0 && rem <= tot * 0.1;
+    }
+
+    function sortLowStockFirst(list) {
+      return [...list].sort((a, b) => {
+        const aLow = isLowStock10(a) ? 1 : 0;
+        const bLow = isLowStock10(b) ? 1 : 0;
+        return bLow - aLow;
+      });
+    }
+
+    function formatUnit(unitCode) {
+      const found = t().units.find(u => u.value === unitCode);
+      if (found) return found.label;
+      const legacyMap = {
+        "पीस": "PCS", "pcs": "PCS", "PCS": "PCS",
+        "मीटर": "MTR", "mtr": "MTR", "MTR": "MTR",
+        "किलो": "KG", "kg": "KG", "KG": "KG",
+        "सेट": "SET", "set": "SET", "SET": "SET"
+      };
+      const normalized = legacyMap[unitCode] || unitCode;
+      const matched = t().units.find(u => u.value === normalized);
+      return matched ? matched.label : unitCode;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(emptyState);
+        const p = JSON.parse(raw);
+        if (!Array.isArray(p.items) || !Array.isArray(p.history)) {
+          return structuredClone(emptyState);
+        }
+        return p;
+      } catch {
+        return structuredClone(emptyState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadLastSlip() {
+      try {
+        const raw = localStorage.getItem(SLIP_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveLastSlip(d) {
+      lastSlipData = d;
+      localStorage.setItem(SLIP_KEY, JSON.stringify(d));
+    }
+
+    function esc(v) {
+      return String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function setTopDdOpen(open) {
+      ddSearchOpen = open;
+      const box = document.getElementById("topDdSearch");
+      const trig = document.getElementById("topDdTrigger");
+      const arr = document.getElementById("topDdArrow");
+      box.classList.toggle("open", open);
+      trig.setAttribute("aria-expanded", String(open));
+      arr.textContent = open ? "▴" : "▾";
+    }
+
+    function updateTopDdSummary() {
+      const trs = t();
+      const sNo = document.getElementById("inSlipNo").value.trim();
+      const sDt = document.getElementById("inDate").value.trim();
+      const sNm = document.getElementById("inPersonName").value.trim();
+      const parts = [];
+      if (sNo) parts.push(`${trs.lblSlipNo}: ${sNo}`);
+      if (sDt) parts.push(`${trs.lblDate}: ${sDt}`);
+      if (sNm) parts.push(`${trs.lblNameField}: ${sNm}`);
+      document.getElementById("topDdSummary").textContent = parts.length ? parts.join(" • ") : trs.topDdSummary;
+    }
+
+    function executeDdSearch(showAlertIfEmpty = true) {
+      const trs = t();
+      const slipNoQ = document.getElementById("inSlipNo").value.trim().toLowerCase();
+      const dateQ = document.getElementById("inDate").value.trim().toLowerCase();
+      const nameQ = document.getElementById("inPersonName").value.trim().toLowerCase();
+      const container = document.getElementById("slipSearchResults");
+
+      updateTopDdSummary();
+
+      if (!slipNoQ && !dateQ && !nameQ) {
+        hasExecutedDdSearch = false;
+        container.innerHTML = "";
+        if (showAlertIfEmpty) alert(trs.alertEmptySearch);
+        return;
+      }
+
+      hasExecutedDdSearch = true;
+
+      const matches = state.history.filter(h => {
+        const okSlip = !slipNoQ || (h.slipNo || "").toLowerCase().includes(slipNoQ);
+        const okDate = !dateQ || (h.time || "").toLowerCase().includes(dateQ);
+        const okName = !nameQ || (h.receiver || "").toLowerCase().includes(nameQ);
+        return okSlip && okDate && okName;
+      });
+
+      if (!matches.length) {
+        container.innerHTML = `<div class="slip-search-card"><span class="slip-search-line2">${esc(trs.noSlipMatch)}</span></div>`;
+        return;
+      }
+
+      if (matches.length === 1) {
+        container.innerHTML = "";
+        openSlipFromHistory(matches[0].id);
+        return;
+      }
+
+      container.innerHTML = matches.map(h => {
+        const unitLabel = formatUnit(h.unit);
+        return `
+          <div class="slip-search-card">
+            <div class="slip-search-meta">
+              <div class="slip-search-line1">${esc(h.slipNo)} • ${esc(h.time)} • ${esc(trs.issuedToPrefix)}: ${esc(h.receiver)}</div>
+              <div class="slip-search-line2">${esc(h.itemName)} (${esc(h.col)}) — <span class="issue-val">-${h.qty} ${esc(unitLabel)}</span> | ${esc(trs.remAfterPrefix)}: ${h.remAfter} ${esc(unitLabel)}</div>
+            </div>
+            <button type="button" class="btn-primary btn-sm" onclick="openSlipFromHistory('${esc(h.id)}')">${esc(trs.openSlipBtn)}</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openSlipFromHistory(histId) {
+      const h = state.history.find(entry => entry.id === histId);
+      if (!h) return;
+      const unitLabel = formatUnit(h.unit);
+      const matchedItem = state.items.find(it => it.name === h.itemName && it.col === h.col);
+      const currentTotal = matchedItem ? (Number(matchedItem.totalQty) || 0) : (Number(h.qty) + Number(h.remAfter));
+      const currentIssueAll = matchedItem ? (Number(matchedItem.issueQty) || Number(h.qty)) : Number(h.qty);
+
+      showSlip({
+        no: h.slipNo,
+        time: h.time,
+        party: h.receiver,
+        col: h.col,
+        itemName: `${h.itemName} (${unitLabel})`,
+        spec: matchedItem && matchedItem.spec ? matchedItem.spec : "-",
+        total: `${currentTotal} ${unitLabel}`,
+        issueNow: `-${h.qty} ${unitLabel}`,
+        issueAll: `-${currentIssueAll} ${unitLabel}`,
+        rem: `${h.remAfter} ${unitLabel}`
+      });
+    }
+
+    function toggleRowDropdown(id) {
+      const tr = document.getElementById("row-" + id);
+      const btn = document.getElementById("dd-" + id);
+      if (!tr) return;
+
+      if (openRowIds.has(id)) {
+        openRowIds.delete(id);
+        tr.classList.remove("open");
+        if (btn) btn.textContent = "▾";
+      } else {
+        openRowIds.add(id);
+        tr.classList.add("open");
+        if (btn) btn.textContent = "▴";
+      }
+    }
+
+    function toggleModalRowDropdown(key) {
+      const tr = document.getElementById("mrow-" + key);
+      const btn = document.getElementById("mdd-" + key);
+      if (!tr) return;
+
+      if (openModalRowIds.has(key)) {
+        openModalRowIds.delete(key);
+        tr.classList.remove("m-open");
+        if (btn) btn.textContent = "▾";
+      } else {
+        openModalRowIds.add(key);
+        tr.classList.add("m-open");
+        if (btn) btn.textContent = "▴";
+      }
+    }
+
+    /* Theme */
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem(THEME_KEY, theme);
+      const tr = t();
+      document.getElementById("drawerThemeVal").textContent = theme === "dark" ? tr.themeDark : tr.themeLight;
+    }
+
+    function toggleTheme() {
+      const curr = document.documentElement.getAttribute("data-theme") || "dark";
+      applyTheme(curr === "dark" ? "light" : "dark");
+    }
+
+    /* Language */
+    function setLanguageMode(mode) {
+      langMode = mode;
+      localStorage.setItem(LANG_MODE_KEY, mode);
+      currentLang = mode === "default" ? detectDeviceLang() : (mode === "en" ? "en" : "hi");
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const tr = t();
+      document.documentElement.lang = currentLang;
+
+      document.getElementById("uiHeaderTitle").textContent = tr.headerTitle;
+      document.getElementById("uiHeaderSub").textContent = tr.headerSub;
+
+      document.getElementById("topDdLabel").textContent = tr.topDdLabel;
+      document.getElementById("lblSlipNo").textContent = tr.lblSlipNo;
+      document.getElementById("lblDate").textContent = tr.lblDate;
+      document.getElementById("lblNameField").textContent = tr.lblNameField;
+      document.getElementById("btnResetDdSearch").textContent = tr.btnResetDdSearch;
+      document.getElementById("btnRunDdSearch").textContent = tr.btnRunDdSearch;
+      updateTopDdSummary();
+
+      document.getElementById("dTitle").textContent = tr.dTitle;
+      document.getElementById("dSecLists").textContent = tr.dSecLists;
+      document.getElementById("dBtnItems").textContent = tr.dBtnItems;
+      document.getElementById("dBtnIssue").textContent = tr.dBtnIssue;
+      document.getElementById("dBtnHist").textContent = tr.dBtnHist;
+      document.getElementById("dBtnRem").textContent = tr.dBtnRem;
+      document.getElementById("dSecPref").textContent = tr.dSecPref;
+
+      document.getElementById("langOptDefault").textContent = tr.optDefault;
+      document.getElementById("langOptHi").textContent = tr.optHi;
+      document.getElementById("langOptEn").textContent = tr.optEn;
+
+      document.getElementById("langOptDefault").classList.toggle("active", langMode === "default");
+      document.getElementById("langOptHi").classList.toggle("active", langMode === "hi");
+      document.getElementById("langOptEn").classList.toggle("active", langMode === "en");
+
+      const currTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      document.getElementById("dBtnThemeLabel").textContent = tr.dBtnThemeLabel;
+      document.getElementById("drawerThemeVal").textContent = currTheme === "dark" ? tr.themeDark : tr.themeLight;
+
+      document.getElementById("dSecDocs").textContent = tr.dSecDocs;
+      document.getElementById("dBtnSlip").textContent = tr.dBtnSlip;
+      document.getElementById("dBtnCsv").textContent = tr.dBtnCsv;
+
+      document.getElementById("uiAddTitle").textContent = tr.addTitle;
+      document.getElementById("lblName").textContent = tr.lblName;
+      document.getElementById("inName").placeholder = tr.phName;
+      document.getElementById("lblCol").textContent = tr.lblCol;
+      document.getElementById("inCol").placeholder = tr.phCol;
+
+      document.getElementById("colList").innerHTML = tr.colSuggestions
+        .map(c => `<option value="${esc(c)}"></option>`)
+        .join("");
+
+      const unitSelect = document.getElementById("inUnit");
+      const prevUnit = unitSelect.value || "PCS";
+      unitSelect.innerHTML = tr.units
+        .map(u => `<option value="${esc(u.value)}">${esc(u.label)}</option>`)
+        .join("");
+      unitSelect.value = tr.units.some(u => u.value === prevUnit) ? prevUnit : tr.units[0].value;
+
+      document.getElementById("lblUnit").textContent = tr.lblUnit;
+      document.getElementById("lblTotal").textContent = tr.lblTotal;
+      document.getElementById("inTotal").placeholder = tr.phTotal;
+      document.getElementById("lblSpec").textContent = tr.lblSpec;
+      document.getElementById("inSpec").placeholder = tr.phSpec;
+      document.getElementById("btnAddSubmit").textContent = tr.btnAddSubmit;
+
+      document.getElementById("uiTableTitle").textContent = tr.tableTitle;
+      document.getElementById("lastSlipBtn").textContent = tr.lastSlipBtn;
+      document.getElementById("csvBtn").textContent = tr.csvBtn;
+      document.getElementById("clearAllBtn").textContent = tr.clearAllBtn;
+      document.getElementById("searchInput").placeholder = tr.phSearch;
+
+      document.getElementById("thSr").textContent = tr.thSr;
+      document.getElementById("thCol").textContent = tr.thCol;
+      document.getElementById("thItem").textContent = tr.thItem;
+      document.getElementById("thSpec").textContent = tr.thSpec;
+      document.getElementById("thTotal").textContent = tr.thTotal;
+      document.getElementById("thIssue").textContent = tr.thIssue;
+      document.getElementById("thRem").textContent = tr.thRem;
+      document.getElementById("thAct").textContent = tr.thAct;
+      document.getElementById("thDel").textContent = tr.thDel;
+
+      document.getElementById("sTitleTxt").textContent = tr.sTitleTxt;
+      document.getElementById("sNoLbl").textContent = tr.sNoLbl;
+      document.getElementById("sTimeLbl").textContent = tr.sTimeLbl;
+      document.getElementById("sPartyLbl").textContent = tr.sPartyLbl;
+      document.getElementById("sColLbl").textContent = tr.sColLbl;
+      document.getElementById("sItemLbl").textContent = tr.sItemLbl;
+      document.getElementById("sSpecLbl").textContent = tr.sSpecLbl;
+      document.getElementById("sThTot").textContent = tr.sThTot;
+      document.getElementById("sThIssueNow").textContent = tr.sThIssueNow;
+      document.getElementById("sThIssueAll").textContent = tr.sThIssueAll;
+      document.getElementById("sThRem").textContent = tr.sThRem;
+      document.getElementById("sTotal").setAttribute("data-label", tr.sThTot);
+      document.getElementById("sIssueNow").setAttribute("data-label", tr.sThIssueNow);
+      document.getElementById("sIssueAll").setAttribute("data-label", tr.sThIssueAll);
+      document.getElementById("sRem").setAttribute("data-label", tr.sThRem);
+      document.getElementById("sSign1").textContent = tr.sSign1;
+      document.getElementById("sSign2").textContent = tr.sSign2;
+      document.getElementById("closeSlip").textContent = tr.closeBtn;
+      document.getElementById("closeListModal").textContent = tr.closeBtn;
+      document.getElementById("savePdfBtn").textContent = tr.pdfBtn;
+
+      updateFilter();
+      if (hasExecutedDdSearch) executeDdSearch(false);
+      renderTable();
+      if (activeModalMode) renderModalContent(activeModalMode);
+    }
+
+    /* Drawer */
+    function openDrawer() {
+      document.getElementById("navDrawer").classList.add("open");
+      document.getElementById("drawerBackdrop").classList.add("open");
+    }
+
+    function closeDrawer() {
+      document.getElementById("navDrawer").classList.remove("open");
+      document.getElementById("drawerBackdrop").classList.remove("open");
+    }
+
+    function updateFilter() {
+      const sel = document.getElementById("colFilter");
+      const current = sel.value;
+      const cols = [...new Set(state.items.map(i => i.col).filter(Boolean))];
+      sel.innerHTML = `<option value="ALL">${esc(t().allCols)}</option>`;
+      cols.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        sel.appendChild(opt);
+      });
+      if (cols.includes(current)) sel.value = current;
+    }
+
+    function renderDrawerCounts() {
+      let issueSum = 0;
+      let remSum = 0;
+
+      state.items.forEach(i => {
+        const tot = Number(i.totalQty) || 0;
+        const iss = Number(i.issueQty) || 0;
+        issueSum += iss;
+        remSum += (tot - iss);
+      });
+
+      document.getElementById("mCountItems").textContent = state.items.length;
+      document.getElementById("mCountIssue").textContent = issueSum;
+      document.getElementById("mCountHist").textContent = state.history.length;
+      document.getElementById("mCountRem").textContent = remSum;
+    }
+
+    function renderTable() {
+      const trs = t();
+      const body = document.getElementById("tableBody");
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const col = document.getElementById("colFilter").value;
+
+      const filtered = state.items.filter(i => {
+        const okCol = col === "ALL" || i.col === col;
+        const okTxt =
+          i.name.toLowerCase().includes(q) ||
+          i.col.toLowerCase().includes(q) ||
+          (i.spec || "").toLowerCase().includes(q);
+        return okCol && okTxt;
+      });
+
+      const list = sortLowStockFirst(filtered);
+
+      if (!list.length) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="10" style="padding:18px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = "";
+      list.forEach((item, index) => {
+        const total = Number(item.totalQty) || 0;
+        const issue = Number(item.issueQty) || 0;
+        const rem = total - issue;
+        const specText = item.spec || "-";
+        const unitLabel = formatUnit(item.unit);
+        const isOpen = openRowIds.has(item.id);
+        const isLow = isLowStock10(item);
+
+        const tr = document.createElement("tr");
+        tr.id = "row-" + item.id;
+        if (isOpen) tr.classList.add("open");
+        if (isLow) tr.classList.add("low-stock-row");
+
+        tr.innerHTML = `
+          <td class="detail-col" data-label="${esc(trs.thSr)}">${index + 1}</td>
+          <td class="detail-col" data-label="${esc(trs.thCol)}">${esc(item.col)}</td>
+          <td class="td-item">
+            <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(item.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${esc(unitLabel)})</span></span>
+            <span class="mobile-spec-sub">${esc(specText)}</span>
+          </td>
+          <td class="td-dd">
+            <button type="button" class="dd-cell-btn" id="dd-${item.id}" onclick="toggleRowDropdown('${item.id}')" aria-label="Expand">${isOpen ? "▴" : "▾"}</button>
+          </td>
+          <td class="detail-col" data-label="${esc(trs.thSpec)}" style="color:var(--muted);">${esc(specText)}</td>
+          <td class="detail-col num" data-label="${esc(trs.thTotal)}"><span class="total-fixed">${total}</span></td>
+          <td class="detail-col num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${issue}</span></td>
+          <td class="detail-col num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem}</span></td>
+          <td class="detail-col td-action" data-label="${esc(trs.thAct)}">
+            <div class="op-group">
+              <input type="number" min="0.01" step="any" placeholder="${esc(trs.phQty)}" class="op-qty" id="qty-${item.id}" />
+              <input type="text" placeholder="${esc(trs.phTo)}" class="op-to" id="to-${item.id}" />
+              <button type="button" class="btn-issue btn-sm" onclick="applyAction('${item.id}', 'ISSUE')">${esc(trs.btnIssue)}</button>
+              <button type="button" class="btn-add btn-sm" onclick="applyAction('${item.id}', 'ADD_TOTAL')">${esc(trs.btnPlusTotal)}</button>
+            </div>
+          </td>
+          <td class="detail-col" data-label="${esc(trs.thDel)}">
+            <button type="button" class="btn-del btn-sm" onclick="deleteItem('${item.id}')">${esc(trs.btnDelete)}</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function applyAction(id, type) {
+      const trs = t();
+      const qtyEl = document.getElementById("qty-" + id);
+      const toEl = document.getElementById("to-" + id);
+      const val = parseFloat(qtyEl.value);
+
+      if (isNaN(val) || val <= 0) {
+        alert(trs.alertQty);
+        qtyEl.focus();
+        return;
+      }
+
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+
+      const total = Number(item.totalQty) || 0;
+      const issue = Number(item.issueQty) || 0;
+      const rem = total - issue;
+      const unitLabel = formatUnit(item.unit);
+
+      if (type === "ADD_TOTAL") {
+        item.totalQty = total + val;
+        qtyEl.value = "";
+        toEl.value = "";
+        saveState();
+        renderAll();
+        return;
+      }
+
+      if (val > rem) {
+        if (!confirm(trs.confirmOverIssue(rem, unitLabel, val))) return;
+      }
+
+      item.issueQty = issue + val;
+      const newIssue = item.issueQty;
+      const newRem = total - newIssue;
+      const receiver = toEl.value.trim() || trs.defaultReceiver;
+      const nowStr = new Date().toLocaleString(trs.locale);
+
+      slipSeq += 1;
+      localStorage.setItem(STORAGE_KEY + "_seq", String(slipSeq));
+      const slipNo = "RQP-SLIP-" + String(slipSeq).padStart(4, "0");
+
+      state.history.unshift({
+        id: "h-" + Date.now(),
+        slipNo,
+        time: nowStr,
+        receiver,
+        col: item.col,
+        itemName: item.name,
+        unit: item.unit,
+        qty: val,
+        remAfter: newRem
+      });
+
+      qtyEl.value = "";
+      toEl.value = "";
+      saveState();
+      renderAll();
+
+      const slipPayload = {
+        no: slipNo,
+        time: nowStr,
+        party: receiver,
+        col: item.col,
+        itemName: `${item.name} (${unitLabel})`,
+        spec: item.spec || "-",
+        total: `${total} ${unitLabel}`,
+        issueNow: `-${val} ${unitLabel}`,
+        issueAll: `-${newIssue} ${unitLabel}`,
+        rem: `${newRem} ${unitLabel}`
+      };
+
+      saveLastSlip(slipPayload);
+      showSlip(slipPayload);
+    }
+
+    function renderModalContent(mode) {
+      const trs = t();
+      const head = document.getElementById("listModalHead");
+      const body = document.getElementById("listModalBody");
+      const title = document.getElementById("listModalTitle");
+      const sortedItems = sortLowStockFirst(state.items);
+
+      if (mode === "ALL_ITEMS") {
+        title.textContent = trs.mAllTitle;
+        head.innerHTML = `<tr><th>#</th><th>${esc(trs.thCol)}</th><th>${esc(trs.thItem)}</th><th>${esc(trs.thSpec)}</th><th class="num">${esc(trs.thTotal)}</th><th class="num">${esc(trs.thIssue)}</th><th class="num">${esc(trs.thRem)}</th><th class="m-dd-cell"></th></tr>`;
+        body.innerHTML = sortedItems.length
+          ? sortedItems.map((i, idx) => {
+              const tot = Number(i.totalQty) || 0;
+              const iss = Number(i.issueQty) || 0;
+              const rem = tot - iss;
+              const specText = i.spec || "-";
+              const unitLabel = formatUnit(i.unit);
+              const isLow = isLowStock10(i);
+              const rowKey = "ALL_" + i.id;
+              const isOpen = openModalRowIds.has(rowKey);
+              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open " : ""}${isLow ? "low-stock-row" : ""}">
+                <td class="m-head-cell">
+                  <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(i.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${esc(unitLabel)})</span></span>
+                  <span class="mobile-spec-sub">${esc(specText)}</span>
+                </td>
+                <td class="m-dd-cell">
+                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
+                </td>
+                <td class="m-detail" data-label="#">${idx + 1}</td>
+                <td class="m-detail" data-label="${esc(trs.thCol)}">${esc(i.col)}</td>
+                <td class="m-detail" data-label="${esc(trs.thItem)}"><strong>${esc(i.name)}</strong> (${esc(unitLabel)})</td>
+                <td class="m-detail" data-label="${esc(trs.thSpec)}">${esc(specText)}</td>
+                <td class="m-detail num" data-label="${esc(trs.thTotal)}">${tot}</td>
+                <td class="m-detail num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${iss}</span></td>
+                <td class="m-detail num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem}</span></td>
+              </tr>`;
+            }).join("")
+          : `<tr class="empty-row"><td colspan="8" style="text-align:center; padding:16px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+      } else if (mode === "ISSUE_ITEMS") {
+        title.textContent = trs.mIssueTitle;
+        head.innerHTML = `<tr><th>#</th><th>${esc(trs.thCol)}</th><th>${esc(trs.thItem)}</th><th class="num">${esc(trs.thTotal)}</th><th class="num">${esc(trs.thIssue)}</th><th class="num">${esc(trs.thRem)}</th><th class="m-dd-cell"></th></tr>`;
+        body.innerHTML = sortedItems.length
+          ? sortedItems.map((i, idx) => {
+              const tot = Number(i.totalQty) || 0;
+              const iss = Number(i.issueQty) || 0;
+              const rem = tot - iss;
+              const unitLabel = formatUnit(i.unit);
+              const isLow = isLowStock10(i);
+              const rowKey = "ISS_" + i.id;
+              const isOpen = openModalRowIds.has(rowKey);
+              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open " : ""}${isLow ? "low-stock-row" : ""}">
+                <td class="m-head-cell">
+                  <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(i.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${esc(unitLabel)})</span></span>
+                  <span class="mobile-spec-sub">${esc(trs.thIssue)}: -${iss} ${esc(unitLabel)}</span>
+                </td>
+                <td class="m-dd-cell">
+                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
+                </td>
+                <td class="m-detail" data-label="#">${idx + 1}</td>
+                <td class="m-detail" data-label="${esc(trs.thCol)}">${esc(i.col)}</td>
+                <td class="m-detail" data-label="${esc(trs.thItem)}"><strong>${esc(i.name)}</strong> (${esc(unitLabel)})</td>
+                <td class="m-detail num" data-label="${esc(trs.thTotal)}">${tot}</td>
+                <td class="m-detail num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${iss} ${esc(unitLabel)}</span></td>
+                <td class="m-detail num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem}</span></td>
+              </tr>`;
+            }).join("")
+          : `<tr class="empty-row"><td colspan="7" style="text-align:center; padding:16px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+      } else if (mode === "ISSUE_HISTORY") {
+        title.textContent = trs.mHistTitle;
+        head.innerHTML = `<tr><th>#</th><th>${esc(trs.sPartyLbl)}</th><th>${esc(trs.thItem)}</th><th class="num">${esc(trs.thIssue)}</th><th class="num">${esc(trs.thRem)}</th><th>${esc(trs.sNoLbl)}</th><th class="m-dd-cell"></th></tr>`;
+        body.innerHTML = state.history.length
+          ? state.history.map((h, idx) => {
+              const unitLabel = formatUnit(h.unit);
+              const rowKey = "HST_" + h.id;
+              const isOpen = openModalRowIds.has(rowKey);
+              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open" : ""}">
+                <td class="m-head-cell">
+                  <span><strong>${esc(h.itemName)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(-${h.qty} ${esc(unitLabel)})</span></span>
+                  <span class="mobile-spec-sub">${esc(h.receiver)}</span>
+                </td>
+                <td class="m-dd-cell">
+                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
+                </td>
+                <td class="m-detail" data-label="#">${idx + 1}</td>
+                <td class="m-detail" data-label="${esc(trs.sPartyLbl)}"><strong>${esc(h.receiver)}</strong></td>
+                <td class="m-detail" data-label="${esc(trs.thItem)}">${esc(h.itemName)} <span style="color:var(--muted);">(${esc(h.col)})</span></td>
+                <td class="m-detail num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${h.qty} ${esc(unitLabel)}</span></td>
+                <td class="m-detail num" data-label="${esc(trs.thRem)}">${h.remAfter} ${esc(unitLabel)}</td>
+                <td class="m-detail" data-label="${esc(trs.sNoLbl)}" style="font-size:0.78rem; color:var(--muted);">${esc(h.slipNo)} • ${esc(h.time)}</td>
+              </tr>`;
+            }).join("")
+          : `<tr class="empty-row"><td colspan="7" style="text-align:center; padding:16px; color:var(--muted);">-</td></tr>`;
+      } else if (mode === "REM_ITEMS") {
+        title.textContent = trs.mRemTitle;
+        head.innerHTML = `<tr><th>#</th><th>${esc(trs.thCol)}</th><th>${esc(trs.thItem)}</th><th>${esc(trs.thSpec)}</th><th class="num">${esc(trs.thTotal)}</th><th class="num">${esc(trs.thRem)}</th><th class="m-dd-cell"></th></tr>`;
+        body.innerHTML = sortedItems.length
+          ? sortedItems.map((i, idx) => {
+              const tot = Number(i.totalQty) || 0;
+              const iss = Number(i.issueQty) || 0;
+              const rem = tot - iss;
+              const specText = i.spec || "-";
+              const unitLabel = formatUnit(i.unit);
+              const isLow = isLowStock10(i);
+              const rowKey = "REM_" + i.id;
+              const isOpen = openModalRowIds.has(rowKey);
+              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open " : ""}${isLow ? "low-stock-row" : ""}">
+                <td class="m-head-cell">
+                  <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(i.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${rem} ${esc(unitLabel)})</span></span>
+                  <span class="mobile-spec-sub">${esc(specText)}</span>
+                </td>
+                <td class="m-dd-cell">
+                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
+                </td>
+                <td class="m-detail" data-label="#">${idx + 1}</td>
+                <td class="m-detail" data-label="${esc(trs.thCol)}">${esc(i.col)}</td>
+                <td class="m-detail" data-label="${esc(trs.thItem)}"><strong>${esc(i.name)}</strong></td>
+                <td class="m-detail" data-label="${esc(trs.thSpec)}">${esc(specText)}</td>
+                <td class="m-detail num" data-label="${esc(trs.thTotal)}">${tot} ${esc(unitLabel)}</td>
+                <td class="m-detail num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem} ${esc(unitLabel)}</span></td>
+              </tr>`;
+            }).join("")
+          : `<tr class="empty-row"><td colspan="7" style="text-align:center; padding:16px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+      }
+    }
+
+    function openListModal(mode) {
+      closeDrawer();
+      activeModalMode = mode;
+      openModalRowIds.clear();
+      renderModalContent(mode);
+      document.getElementById("listModal").classList.add("show");
+    }
+
+    function showSlip(d) {
+      if (!d) {
+        alert(t().noSlip);
+        return;
+      }
+      document.getElementById("sNo").textContent = d.no;
+      document.getElementById("sTime").textContent = d.time;
+      document.getElementById("sParty").textContent = d.party;
+      document.getElementById("sCol").textContent = d.col;
+      document.getElementById("sItem").textContent = d.itemName;
+      document.getElementById("sSpec").textContent = d.spec;
+      document.getElementById("sTotal").textContent = d.total;
+      document.getElementById("sIssueNow").textContent = d.issueNow;
+      document.getElementById("sIssueAll").textContent = d.issueAll;
+      document.getElementById("sRem").textContent = d.rem;
+
+      document.getElementById("slipModal").classList.add("show");
+    }
+
+    function deleteItem(id) {
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+      if (!confirm(t().confirmDelete(item.name))) return;
+      state.items = state.items.filter(i => i.id !== id);
+      openRowIds.delete(id);
+      saveState();
+      renderAll();
+    }
+
+    function downloadCsv() {
+      const head = ["Sr.", "Column", "Item", "Details", "Unit", "Total Qty", "Issue (-)", "Remaining"];
+      const rows = sortLowStockFirst(state.items).map((i, idx) => {
+        const tot = Number(i.totalQty) || 0;
+        const iss = Number(i.issueQty) || 0;
+        return [idx + 1, i.col, i.name, i.spec || "", formatUnit(i.unit), tot, iss, tot - iss]
+          .map(v => `"${String(v).replace(/"/g, '""')}"`)
+          .join(",");
+      });
+      const blob = new Blob(["\uFEFF" + [head.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ResQ-Power-Stock.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* Events */
+    document.getElementById("topDdTrigger").addEventListener("click", () => {
+      setTopDdOpen(!ddSearchOpen);
+    });
+
+    ["inSlipNo", "inDate", "inPersonName"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updateTopDdSummary);
+      document.getElementById(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          executeDdSearch(true);
+        }
+      });
+    });
+
+    document.getElementById("btnRunDdSearch").addEventListener("click", () => executeDdSearch(true));
+
+    document.getElementById("btnResetDdSearch").addEventListener("click", () => {
+      document.getElementById("inSlipNo").value = "";
+      document.getElementById("inDate").value = "";
+      document.getElementById("inPersonName").value = "";
+      document.getElementById("slipSearchResults").innerHTML = "";
+      hasExecutedDdSearch = false;
+      updateTopDdSummary();
+    });
+
+    document.getElementById("addForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("inName").value.trim();
+      const col = document.getElementById("inCol").value.trim();
+      const unit = document.getElementById("inUnit").value;
+      const totalQty = parseFloat(document.getElementById("inTotal").value) || 0;
+      const spec = document.getElementById("inSpec").value.trim();
+
+      if (!name || !col) return;
+
+      state.items.unshift({
+        id: "itm-" + Date.now(),
+        col,
+        name,
+        spec,
+        unit,
+        totalQty,
+        issueQty: 0
+      });
+
+      saveState();
+      renderAll();
+      this.reset();
+      document.getElementById("inName").focus();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderTable);
+    document.getElementById("colFilter").addEventListener("change", renderTable);
+
+    document.getElementById("openDrawerBtn").addEventListener("click", openDrawer);
+    document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
+    document.getElementById("drawerBackdrop").addEventListener("click", closeDrawer);
+
+    document.getElementById("drawerThemeBtn").addEventListener("click", toggleTheme);
+
+    document.getElementById("drawerSlipBtn").addEventListener("click", () => {
+      closeDrawer();
+      showSlip(lastSlipData);
+    });
+
+    document.getElementById("drawerCsvBtn").addEventListener("click", () => {
+      closeDrawer();
+      downloadCsv();
+    });
+
+    document.getElementById("closeListModal").addEventListener("click", () => {
+      activeModalMode = null;
+      document.getElementById("listModal").classList.remove("show");
+    });
+
+    document.getElementById("listModal").addEventListener("click", (e) => {
+      if (e.target.id === "listModal") {
+        activeModalMode = null;
+        e.target.classList.remove("show");
+      }
+    });
+
+    document.getElementById("lastSlipBtn").addEventListener("click", () => showSlip(lastSlipData));
+    document.getElementById("closeSlip").addEventListener("click", () => {
+      document.getElementById("slipModal").classList.remove("show");
+    });
+    document.getElementById("slipModal").addEventListener("click", (e) => {
+      if (e.target.id === "slipModal") e.target.classList.remove("show");
+    });
+    document.getElementById("savePdfBtn").addEventListener("click", () => window.print());
+
+    document.getElementById("clearAllBtn").addEventListener("click", () => {
+      if (!confirm(t().confirmClear)) return;
+      state = structuredClone(emptyState);
+      openRowIds.clear();
+      openModalRowIds.clear();
+      saveState();
+      renderAll();
+    });
+
+    document.getElementById("csvBtn").addEventListener("click", downloadCsv);
+
+    function renderAll() {
+      updateFilter();
+      renderDrawerCounts();
+      if (hasExecutedDdSearch) executeDdSearch(false);
+      renderTable();
+      if (activeModalMode) renderModalContent(activeModalMode);
+    }
+
+    applyLanguage();
+    applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+    renderAll();
+  </script>
+</body>
+</html>
