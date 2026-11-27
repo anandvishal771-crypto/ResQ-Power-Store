@@ -3,48 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ResQ Power — Store Stock & Issue Slip</title>
+  <title>ResQ Power — Store Material Stock Register</title>
   <style>
     :root {
-      --bg: #f6f7f9;
+      --bg: #f1f5f9;
       --surface: #ffffff;
-      --surface-soft: #f9fafb;
-      --ink: #111827;
-      --muted: #6b7280;
-      --line: #d1d5db;
-      --brand-dark: #1f2937;
-      --ok-bg: #ecfdf5;
-      --ok-fg: #047857;
-      --ok-line: #a7f3d0;
-      --warn-bg: #fef2f2;
-      --warn-fg: #b91c1c;
-      --warn-line: #fecaca;
-      --low-row-bg: rgba(239, 68, 68, 0.11);
-      --low-row-line: #ef4444;
-      --backdrop: rgba(17, 24, 39, 0.55);
-      --logo-ink: #111827;
-      --logo-tag: #374151;
+      --surface-soft: #f8fafc;
+      --surface-card: #f1f5f9;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #cbd5e1;
+      --line-soft: #e2e8f0;
+      --brand-ink: #0f172a;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.25);
+      --ok: #16a34a;
+      --ok-bg: rgba(22, 163, 74, 0.14);
+      --ok-line: rgba(22, 163, 74, 0.42);
+      --warn: #f59e0b;
+      --warn-bg: rgba(245, 158, 11, 0.14);
+      --warn-line: rgba(245, 158, 11, 0.4);
+      --danger: #ef4444;
+      --danger-text: #f87171;
+      --danger-bg: rgba(239, 68, 68, 0.14);
+      --danger-line: rgba(239, 68, 68, 0.45);
+      --nav-bg: rgba(255, 255, 255, 0.96);
+      --backdrop: rgba(15, 23, 42, 0.65);
     }
 
     html[data-theme="dark"] {
-      --bg: #000000;
-      --surface: #0d0d0d;
-      --surface-soft: #161616;
-      --ink: #f5f5f5;
-      --muted: #a3a3a3;
-      --line: #262626;
-      --brand-dark: #ffffff;
-      --ok-bg: rgba(16, 185, 129, 0.14);
-      --ok-fg: #34d399;
-      --ok-line: rgba(52, 211, 153, 0.35);
-      --warn-bg: rgba(239, 68, 68, 0.16);
-      --warn-fg: #f87171;
-      --warn-line: rgba(248, 113, 113, 0.35);
-      --low-row-bg: rgba(239, 68, 68, 0.18);
-      --low-row-line: #f87171;
-      --backdrop: rgba(0, 0, 0, 0.82);
-      --logo-ink: #ffffff;
-      --logo-tag: #d4d4d4;
+      --bg: #040507;
+      --surface: #0b0d11;
+      --surface-soft: #12151c;
+      --surface-card: #161922;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --line: #232836;
+      --line-soft: #1b1f2b;
+      --brand-ink: #ffffff;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.38);
+      --ok: #22c55e;
+      --ok-bg: rgba(34, 197, 94, 0.16);
+      --ok-line: rgba(34, 197, 94, 0.48);
+      --warn: #f97316;
+      --warn-bg: rgba(249, 115, 22, 0.16);
+      --warn-line: rgba(249, 115, 22, 0.42);
+      --danger: #ef4444;
+      --danger-text: #f87171;
+      --danger-bg: rgba(239, 68, 68, 0.16);
+      --danger-line: rgba(239, 68, 68, 0.55);
+      --nav-bg: rgba(10, 12, 17, 0.96);
+      --backdrop: rgba(0, 0, 0, 0.84);
     }
 
     * {
@@ -57,362 +67,750 @@
     body {
       background: var(--bg);
       color: var(--ink);
-      padding: 14px;
+      padding: 12px 12px 140px;
       line-height: 1.45;
-      transition: background 0.18s ease, color 0.18s ease;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
-    /* Splash Screen with Zoom-Out Logo + Orange Progress Line */
-    #splashScreen {
-      position: fixed;
-      inset: 0;
-      z-index: 2000;
-      background: #09090b;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
+    body.slip-bar-active {
+      padding-bottom: 245px;
+    }
+
+    .issue-val {
+      color: var(--danger-text);
+      font-weight: 700;
+    }
+
+    /* ResQ Power Logo Mark (with Q + Red Lightning Bolt + Tagline) */
+    .resq-logo-card {
+      background: #ffffff;
+      color: #0b0d11;
+      border-radius: 10px;
+      padding: 8px 12px 9px;
+      display: inline-block;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    .resq-logo-row {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      gap: 2px;
+      line-height: 1;
+    }
+
+    .resq-logo-text {
+      font-size: 1.32rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #0b0d11;
+    }
+
+    .resq-logo-tagline {
+      font-size: 0.42rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #111827;
+      text-transform: uppercase;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    .resq-logo-tagline .r {
+      color: #dc2626;
+    }
+
+    /* Compact Centered Startup Logo Splash (2s) with Orange Loading Line */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: #06080d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 1;
       transition: opacity 0.35s ease, visibility 0.35s ease;
     }
 
-    #splashScreen.hide {
+    .splash-screen.hide {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
     }
 
-    .splash-logo-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .splash-logo-box {
+      background: #ffffff;
+      color: #0b0d11;
+      border-radius: 12px;
+      padding: 12px 14px 12px;
       text-align: center;
-      transform: scale(1.24);
-      opacity: 0.25;
-      animation: splashZoomOut 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      width: auto;
+      max-width: 78vw;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+      transform-origin: center center;
+      animation: logoPop2s 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    @keyframes splashZoomOut {
-      0% {
-        transform: scale(1.26);
-        opacity: 0.25;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    @keyframes logoPop2s {
+      0% { transform: scale(0.76); opacity: 0.25; }
+      20% { transform: scale(1); opacity: 1; }
+      85% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1.05); opacity: 1; }
     }
 
-    .splash-badge {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #27272a, #09090b);
-      border: 2px solid rgba(249, 115, 22, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
-      margin-bottom: 12px;
-    }
-
-    .splash-brand {
-      font-size: 1.65rem;
-      font-weight: 900;
-      letter-spacing: 0.6px;
-      color: #ffffff;
-      line-height: 1.1;
-    }
-
-    .splash-store {
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 3px;
-      color: #fda4af;
-      margin-top: 4px;
-      text-transform: uppercase;
-    }
-
-    .splash-tagline {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.6px;
-      color: #d4d4d8;
-      margin-top: 8px;
-      text-transform: uppercase;
-    }
-
-    .splash-tagline .r {
-      color: #ef4444;
-    }
-
-    .splash-loader-box {
-      width: 240px;
-      max-width: 76vw;
-      margin-top: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .splash-track {
+    .splash-loader-track {
       width: 100%;
-      height: 6px;
+      height: 4px;
+      background: #ffedd5;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
       overflow: hidden;
+      margin-top: 9px;
     }
 
-    .splash-bar {
+    .splash-loader-fill {
       width: 0%;
       height: 100%;
+      background: #f97316;
       border-radius: 999px;
-      background: linear-gradient(90deg, #ea580c, #f97316, #fb923c);
-      transition: width 0.08s linear;
+      animation: orangeLoad2s 2s linear forwards;
     }
 
-    .splash-pct {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #fb923c;
-      font-variant-numeric: tabular-nums;
+    @keyframes orangeLoad2s {
+      0% { width: 0%; }
+      100% { width: 100%; }
     }
 
     .app {
-      max-width: 1140px;
+      max-width: 980px;
       margin: 0 auto;
     }
 
-    /* Low Stock (<= 10%) Red Highlight */
-    tr.low-stock-row td {
-      background: var(--low-row-bg) !important;
-      border-color: var(--low-row-line) !important;
-    }
-
-    /* Dropdown Search Box at Very Top */
-    .top-dd-search {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      margin-bottom: 14px;
-      overflow: hidden;
-    }
-
-    .top-dd-trigger {
-      width: 100%;
-      background: var(--surface);
-      color: var(--ink);
-      border: none;
-      border-radius: 0;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .top-dd-trigger-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .top-dd-trigger-summary {
-      color: var(--muted);
-      font-size: 0.84rem;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .top-dd-arrow {
-      font-size: 0.85rem;
-      color: var(--muted);
+    .white-search-svg {
+      width: 20px;
+      height: 20px;
+      stroke: #ffffff;
+      fill: none;
+      stroke-width: 3.1;
+      stroke-linecap: round;
+      display: block;
       flex-shrink: 0;
     }
 
-    .top-dd-panel {
-      display: none;
-      padding: 12px 14px 14px;
-      border-top: 1px solid var(--line);
-      background: var(--surface-soft);
+    html:not([data-theme="dark"]) .white-search-svg {
+      stroke: #0f172a;
     }
 
-    .top-dd-search.open .top-dd-panel {
+    .slip-doc-svg {
+      width: 21px;
+      height: 21px;
       display: block;
+      flex-shrink: 0;
     }
 
-    .dd-field-row {
-      display: grid;
-      grid-template-columns: 125px 1fr;
-      gap: 10px;
+    .top-search-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .search-pill {
+      display: flex;
       align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .dd-field-label {
-      font-size: 0.84rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .dd-action-row {
-      display: flex;
-      justify-content: flex-end;
       gap: 8px;
-      margin-top: 10px;
-    }
-
-    .slip-search-results {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .slip-search-card {
-      background: var(--surface);
+      background: var(--surface-soft);
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      border-radius: 999px;
+      padding: 6px 8px 6px 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
     }
 
-    .slip-search-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 0.84rem;
-    }
-
-    .slip-search-line1 {
-      font-weight: 700;
+    .search-pill input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
       color: var(--ink);
+      font-size: 0.92rem;
+      padding: 6px 4px;
     }
 
-    .slip-search-line2 {
-      font-size: 0.79rem;
-      color: var(--muted);
-    }
-
-    /* Top Header: 3-Line Menu Top-Left, Logo Top-Right, Title Centered */
-    .header {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .header-top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      width: 100%;
+    .search-pill input:focus {
+      outline: none;
     }
 
     .hamburger-btn {
       width: 38px;
       height: 36px;
+      border-radius: 10px;
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      color: var(--ink);
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4.5px;
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      color: var(--ink);
+      gap: 4px;
       flex-shrink: 0;
+      cursor: pointer;
     }
 
     .hamburger-btn span {
-      display: block;
       width: 16px;
       height: 2px;
       background: currentColor;
       border-radius: 2px;
+      display: block;
     }
 
-    /* Compact Transparent ResQ Power Logo */
-    .logo-box {
-      background: transparent;
-      border: none;
-      padding: 2px 0;
-      display: inline-flex;
+    .top-search-results {
+      margin-top: 8px;
+      display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      color: var(--logo-ink);
+      gap: 7px;
     }
 
-    .logo-main-row {
-      display: inline-flex;
+    .search-result-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .logo-word {
-      font-size: 1.08rem;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      color: var(--logo-ink);
+    .brand-header {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .register-subtitle {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .section-heading {
+      font-size: 1.04rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .dash-tile {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.14s ease, border-color 0.14s ease;
+    }
+
+    .dash-tile:hover {
+      transform: translateY(-1px);
+      border-color: var(--ink);
+    }
+
+    .dash-tile.tile-total {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .dash-tile.tile-low {
+      background: rgba(239, 68, 68, 0.09);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .dash-tile.tile-today {
+      background: rgba(59, 130, 246, 0.09);
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+
+    .dash-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
       line-height: 1;
     }
 
-    .logo-tagline {
-      font-size: 0.44rem;
-      font-weight: 700;
-      letter-spacing: 0.35px;
-      color: var(--logo-tag);
-      text-transform: uppercase;
+    .dash-meta {
+      min-width: 0;
+    }
+
+    .dash-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dash-num {
+      font-size: 1.18rem;
+      font-weight: 800;
+      line-height: 1.15;
       margin-top: 2px;
+    }
+
+    .tile-total .dash-num { color: #34d399; }
+    .tile-low .dash-num { color: #f87171; }
+    .tile-today .dash-num { color: #60a5fa; }
+
+    .stock-box {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stock-box-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .size-search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+    }
+
+    .size-search-box input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      color: var(--ink);
+      font-size: 0.86rem;
+      padding: 3px 2px;
+    }
+
+    .size-search-box input:focus {
+      outline: none;
+    }
+
+    .stock-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stock-card {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      scroll-margin-bottom: 145px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    body.slip-bar-active .stock-card {
+      scroll-margin-bottom: 245px;
+    }
+
+    .stock-card.low-alert {
+      background: rgba(127, 29, 29, 0.22);
+      border-color: #ef4444;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.25);
+    }
+
+    @keyframes lowBlink3 {
+      0%, 100% {
+        background: rgba(127, 29, 29, 0.22);
+        border-color: #ef4444;
+        box-shadow: 0 0 18px rgba(239, 68, 68, 0.28);
+      }
+      50% {
+        background: rgba(239, 68, 68, 0.44);
+        border-color: #fca5a5;
+        box-shadow: 0 0 26px rgba(239, 68, 68, 0.72);
+      }
+    }
+
+    .stock-card.blink-3 {
+      animation: lowBlink3 0.55s ease-in-out 3;
+    }
+
+    .stock-card-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .item-visual-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+      max-width: 68px;
+    }
+
+    .item-thumb {
+      width: 50px;
+      height: 50px;
+      border-radius: 11px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .item-kind-caption {
+      font-size: 0.67rem;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.15;
+      text-align: center;
+      max-width: 68px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stock-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-title-line {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stock-card.low-alert .item-title-line {
+      color: #fca5a5;
+    }
+
+    .item-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .pct-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      border: 1px solid transparent;
+      flex-shrink: 0;
+    }
+
+    .pct-red {
+      color: #f87171;
+      background: var(--danger-bg);
+      border-color: var(--danger-line);
+    }
+
+    .pct-orange {
+      color: #fb923c;
+      background: var(--warn-bg);
+      border-color: var(--warn-line);
+    }
+
+    .pct-green {
+      color: #4ade80;
+      background: var(--ok-bg);
+      border-color: var(--ok-line);
+    }
+
+    .queued-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #4ade80;
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-line);
+      flex-shrink: 0;
+    }
+
+    .green-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+      flex-shrink: 0;
+    }
+
+    .qty-bar-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 82px;
+      max-width: 150px;
+    }
+
+    .qty-bar-track {
+      position: relative;
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+    }
+
+    .qty-bar-fill {
+      height: 100%;
+      background: #ef4444;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .qty-bar-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      flex-shrink: 0;
+    }
+
+    .expand-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .stock-card-drawer {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .stock-card.open .stock-card-drawer {
+      display: block;
+    }
+
+    .detail-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+    }
+
+    .metric-box {
+      background: var(--surface);
+      border: 1px solid var(--line-soft);
+      border-radius: 9px;
+      padding: 7px 9px;
+    }
+
+    .metric-box span {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .metric-box strong {
+      font-size: 0.9rem;
+    }
+
+    .op-inputs-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .op-inputs-row input {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 0.84rem;
+    }
+
+    .op-qty {
+      width: 90px;
+    }
+
+    .op-to {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .item-queued-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-line);
+      color: #4ade80;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .op-btns-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .op-btns-row button {
+      width: 100%;
+      padding: 7px 8px;
+      font-size: 0.8rem;
+      text-align: center;
       white-space: nowrap;
     }
 
-    .logo-tagline .r {
-      color: #dc2626;
+    .generate-slip-bar {
+      display: none;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 72px;
+      max-width: 956px;
+      margin: 0 auto;
+      z-index: 1040;
+      background: #16a34a;
+      color: #ffffff;
+      border: 1px solid #4ade80;
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 10px 26px rgba(22, 163, 74, 0.42);
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
 
-    .header-center {
-      text-align: center;
-      width: 100%;
-      padding-top: 2px;
+    .generate-slip-bar.show {
+      display: flex;
     }
 
-    .header-center .title {
-      font-size: 1.05rem;
+    .generate-slip-info {
+      font-size: 0.82rem;
       font-weight: 800;
+      line-height: 1.25;
     }
 
-    .header-center .sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 2px;
+    .btn-gen-slip {
+      background: #ffffff;
+      color: #052e16;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      flex-shrink: 0;
     }
 
-    /* Slide-out Drawer Menu */
+    button {
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    html[data-theme="dark"] .btn-primary {
+      background: #ffffff;
+      color: #050505;
+    }
+
+    .btn-issue {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border-color: var(--danger-line);
+    }
+
+    .btn-add {
+      background: var(--ok-bg);
+      color: #4ade80;
+      border-color: var(--ok-line);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .btn-del {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border-color: var(--danger-line);
+    }
+
+    .btn-sm {
+      padding: 6px 9px;
+      font-size: 0.78rem;
+    }
+
     .drawer-backdrop {
       display: none;
       position: fixed;
       inset: 0;
       background: var(--backdrop);
-      z-index: 950;
+      z-index: 1200;
     }
 
     .drawer-backdrop.open {
@@ -422,23 +820,23 @@
     .drawer {
       position: fixed;
       top: 0;
-      left: -305px;
-      width: 290px;
+      right: -310px;
+      width: 292px;
       max-width: 86vw;
       height: 100%;
       background: var(--surface);
-      border-right: 1px solid var(--line);
-      z-index: 960;
+      border-left: 1px solid var(--line);
+      z-index: 1210;
       padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 8px;
       overflow-y: auto;
-      transition: left 0.2s ease;
+      transition: right 0.2s ease;
     }
 
     .drawer.open {
-      left: 0;
+      right: 0;
     }
 
     .drawer-head {
@@ -451,7 +849,7 @@
     }
 
     .drawer-title {
-      font-size: 0.92rem;
+      font-size: 0.94rem;
       font-weight: 800;
     }
 
@@ -470,7 +868,7 @@
       background: var(--surface-soft);
       color: var(--ink);
       border: 1px solid var(--line);
-      border-radius: 7px;
+      border-radius: 8px;
       padding: 9px 11px;
       font-size: 0.84rem;
       font-weight: 700;
@@ -479,14 +877,9 @@
       align-items: center;
     }
 
-    .drawer-item:hover {
-      border-color: var(--brand-dark);
-    }
-
     .drawer-lang-row {
       display: flex;
       gap: 6px;
-      width: 100%;
     }
 
     .lang-choice-btn {
@@ -494,7 +887,7 @@
       background: var(--surface-soft);
       color: var(--ink);
       border: 1px solid var(--line);
-      border-radius: 7px;
+      border-radius: 8px;
       padding: 8px 6px;
       font-size: 0.78rem;
       font-weight: 700;
@@ -502,416 +895,103 @@
     }
 
     .lang-choice-btn.active {
-      background: #111827;
+      background: #0f172a;
       color: #ffffff;
-      border-color: #111827;
+      border-color: #0f172a;
     }
 
     html[data-theme="dark"] .lang-choice-btn.active {
       background: #ffffff;
-      color: #000000;
+      color: #050505;
       border-color: #ffffff;
     }
 
-    /* Cards & Controls */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 14px;
-    }
-
-    .card-top {
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--line);
+      padding: 6px 18px 10px;
       display: flex;
-      justify-content: space-between;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 1050;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-btn {
+      position: relative;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 4px;
+      padding: 4px 12px;
+      font-size: 0.74rem;
+      font-weight: 600;
     }
 
-    .card-top h2 {
-      font-size: 0.98rem;
-      font-weight: 700;
+    .nav-btn.active {
+      color: var(--ink);
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      align-items: end;
+    .nav-badge {
+      position: absolute;
+      top: 0;
+      right: 6px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.66rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    label {
-      display: block;
-      font-size: 0.76rem;
+    .nav-plus-btn {
+      width: 58px;
+      height: 58px;
+      margin-top: -22px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #ffffff;
+      border: 4px solid var(--surface);
+      box-shadow: 0 6px 20px var(--accent-glow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.85rem;
+      font-weight: 500;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .nav-plus-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 0.74rem;
       font-weight: 600;
       color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      font-size: 0.88rem;
-      background: var(--surface);
-      color: var(--ink);
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--brand-dark);
-    }
-
-    button {
       cursor: pointer;
-      border: 1px solid transparent;
-      border-radius: 7px;
-      padding: 8px 12px;
-      font-size: 0.83rem;
-      font-weight: 700;
     }
 
-    .btn-primary {
-      background: #111827;
-      color: #ffffff;
-    }
-
-    html[data-theme="dark"] .btn-primary {
-      background: #ffffff;
-      color: #000000;
-    }
-
-    .btn-issue {
-      background: var(--warn-bg);
-      color: var(--warn-fg);
-      border-color: var(--warn-line);
-    }
-
-    .btn-add {
-      background: var(--ok-bg);
-      color: var(--ok-fg);
-      border-color: var(--ok-line);
-    }
-
-    .btn-outline {
-      background: var(--surface-soft);
-      color: var(--ink);
-      border-color: var(--line);
-    }
-
-    .btn-del {
-      background: var(--warn-bg);
-      color: var(--warn-fg);
-      border-color: var(--warn-line);
-    }
-
-    .btn-sm {
-      padding: 5px 8px;
-      font-size: 0.78rem;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .toolbar input, .toolbar select {
-      max-width: 240px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 820px;
-      background: var(--surface);
-    }
-
-    th, td {
-      border: 1px solid var(--line);
-      padding: 9px 10px;
-      font-size: 0.86rem;
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    th {
-      background: var(--surface-soft);
-      font-weight: 700;
-      color: var(--ink);
-      white-space: nowrap;
-    }
-
-    .num {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .total-fixed { font-weight: 800; }
-    .issue-val { font-weight: 700; color: var(--warn-fg); }
-
-    .rem-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 5px;
-      font-weight: 800;
-      background: var(--ok-bg);
-      color: var(--ok-fg);
-      border: 1px solid var(--ok-line);
-    }
-
-    .rem-low {
-      background: var(--warn-bg);
-      color: var(--warn-fg);
-      border-color: var(--warn-line);
-    }
-
-    .op-group {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .op-qty { width: 72px !important; padding: 5px 7px !important; }
-    .op-to  { width: 120px !important; padding: 5px 7px !important; }
-
-    .dd-cell-btn {
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      .dd-field-row {
-        grid-template-columns: 105px 1fr;
-        gap: 8px;
-      }
-
-      .toolbar input, .toolbar select {
-        max-width: 100%;
-      }
-
-      .table-wrap {
-        overflow-x: visible;
-        border: none;
-        border-radius: 0;
-      }
-
-      .main-table,
-      .modal-table {
-        min-width: 0;
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 10px;
-        background: transparent;
-      }
-
-      .main-table thead,
-      .modal-table thead {
-        display: none;
-      }
-
-      .main-table tbody tr,
-      .modal-table tbody tr {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        background: var(--surface-soft);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 10px 12px;
-        gap: 6px;
-      }
-
-      .main-table tbody tr.low-stock-row,
-      .modal-table tbody tr.low-stock-row {
-        background: var(--low-row-bg);
-        border-color: var(--low-row-line);
-      }
-
-      .main-table tbody tr.empty-row,
-      .modal-table tbody tr.empty-row {
-        display: block;
-        text-align: center;
-        padding: 16px 10px;
-      }
-
-      .main-table tbody tr.empty-row td,
-      .modal-table tbody tr.empty-row td {
-        display: block;
-        border: none;
-        padding: 0;
-        text-align: center;
-      }
-
-      .main-table tbody tr:not(.empty-row) td.detail-col,
-      .modal-table tbody tr:not(.empty-row) td.m-detail {
-        display: none;
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        border: none;
-        border-top: 1px solid var(--line);
-        padding: 7px 0;
-        text-align: right;
-        font-size: 0.85rem;
-      }
-
-      .main-table tbody tr.open:not(.empty-row) td.detail-col,
-      .modal-table tbody tr.m-open:not(.empty-row) td.m-detail {
-        display: flex;
-      }
-
-      .main-table tbody tr:not(.empty-row) td.detail-col::before,
-      .modal-table tbody tr:not(.empty-row) td.m-detail::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: var(--muted);
-        text-align: left;
-        flex-shrink: 0;
-      }
-
-      .main-table tbody tr.open:not(.empty-row) td.td-action {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: left;
-      }
-
-      .main-table tbody tr.open:not(.empty-row) td.td-action::before {
-        margin-bottom: 4px;
-      }
-
-      .main-table tbody tr:not(.empty-row) td.td-item,
-      .modal-table tbody tr:not(.empty-row) td.m-head-cell {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
-        flex: 1 1 auto;
-        width: calc(100% - 44px);
-        border: none;
-        padding: 0;
-        text-align: left;
-      }
-
-      .mobile-spec-sub {
-        font-size: 0.8rem;
-        color: var(--muted);
-        font-weight: 600;
-      }
-
-      .main-table tbody tr:not(.empty-row) td.td-dd,
-      .modal-table tbody tr:not(.empty-row) td.m-dd-cell {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        width: 36px;
-        border: none;
-        padding: 0;
-      }
-
-      .dd-cell-btn {
-        width: 34px;
-        height: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 7px;
-        color: var(--ink);
-        font-size: 0.85rem;
-        padding: 0;
-      }
-
-      .op-group {
-        width: 100%;
-      }
-
-      .op-qty, .op-to {
-        flex: 1 1 90px;
-        width: auto !important;
-      }
-
-      .slip-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .slip-table {
-        min-width: 0;
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--surface-soft);
-        overflow: hidden;
-      }
-
-      .slip-table thead {
-        display: none;
-      }
-
-      .slip-table tbody,
-      .slip-table tr {
-        display: block;
-        width: 100%;
-      }
-
-      .slip-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        border: none;
-        border-bottom: 1px solid var(--line);
-        padding: 8px 11px;
-        text-align: right;
-        font-size: 0.85rem;
-      }
-
-      .slip-table td:last-child {
-        border-bottom: none;
-      }
-
-      .slip-table td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: var(--muted);
-        text-align: left;
-        flex-shrink: 0;
-      }
-    }
-
-    @media (min-width: 769px) {
-      .th-dd,
-      .td-dd,
-      .m-dd-cell,
-      .mobile-spec-sub {
-        display: none;
-      }
-    }
-
-    /* Modals */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
       background: var(--backdrop);
-      z-index: 1000;
-      padding: 16px;
+      z-index: 1300;
+      padding: 14px;
       overflow-y: auto;
     }
 
@@ -925,19 +1005,24 @@
       background: var(--surface);
       color: var(--ink);
       width: 100%;
-      border-radius: 10px;
+      border-radius: 14px;
       border: 1px solid var(--line);
-      padding: 20px;
-      margin-top: 16px;
+      padding: 18px 18px 140px;
+      margin-top: 14px;
+      position: relative;
+    }
+
+    .slip {
+      padding-bottom: 18px;
     }
 
     .modal-box { max-width: 780px; }
-    .slip { max-width: 700px; }
+    .slip { max-width: 680px; }
 
     .modal-top {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--line);
@@ -949,24 +1034,172 @@
       font-weight: 800;
     }
 
-    .modal-table {
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .field-group {
+      position: relative;
+      z-index: 1;
+    }
+
+    .field-group.dropdown-active {
+      z-index: 40;
+    }
+
+    label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input.field-in, select.field-in {
       width: 100%;
-      min-width: 0;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      background: var(--surface-soft);
+      color: var(--ink);
+    }
+
+    .combo-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .combo-input {
+      padding-right: 32px !important;
+    }
+
+    .combo-arrow-btn {
+      position: absolute;
+      right: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .combo-menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      max-height: 190px;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.65);
+      z-index: 1600;
+    }
+
+    .combo-menu.open {
+      display: block;
+    }
+
+    .combo-opt {
+      padding: 9px 12px;
+      font-size: 0.86rem;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line-soft);
+      cursor: pointer;
+    }
+
+    .combo-opt:last-child {
+      border-bottom: none;
+    }
+
+    .combo-opt:hover, .combo-opt:active {
+      background: var(--surface-card);
+    }
+
+    .modal-list-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .info-row-card {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .recycle-note {
+      font-size: 0.76rem;
+      color: var(--muted);
+      background: var(--surface-soft);
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .slip-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+      font-size: 0.83rem;
+    }
+
+    .slip-table th, .slip-table td {
+      border: 1px solid var(--line);
+      padding: 7px 9px;
+      text-align: left;
+    }
+
+    .slip-table th {
+      background: var(--surface-soft);
+    }
+
+    .slip-brand-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
     }
 
     .slip-top {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       border-bottom: 2px solid var(--ink);
-      padding-bottom: 12px;
-      margin-bottom: 14px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
-    }
-
-    .slip .logo-box {
-      align-items: flex-start;
     }
 
     .slip-grid {
@@ -975,22 +1208,31 @@
       gap: 8px 14px;
       background: var(--surface-soft);
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 11px;
-      font-size: 0.85rem;
-      margin-bottom: 14px;
+      font-size: 0.84rem;
+      margin-bottom: 12px;
     }
 
-    .slip-table {
-      width: 100%;
-      min-width: 0;
-      margin-bottom: 14px;
+    .slip-summary-box {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .slip-stat {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: 0.84rem;
     }
 
     .slip-signs {
       display: flex;
       justify-content: space-between;
-      margin-top: 28px;
+      margin-top: 24px;
       font-size: 0.82rem;
       color: var(--muted);
     }
@@ -999,8 +1241,21 @@
       display: flex;
       justify-content: flex-end;
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 14px;
       flex-wrap: wrap;
+    }
+
+    @media (max-width: 560px) {
+      .dash-tile {
+        padding: 9px 8px;
+        gap: 6px;
+      }
+      .dash-num {
+        font-size: 1.04rem;
+      }
+      .slip-grid, .slip-summary-box {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media print {
@@ -1028,33 +1283,15 @@
       }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <!-- Splash Screen: Zoom-Out Logo + Orange Progress Bar -->
-  <div id="splashScreen" aria-hidden="true">
-    <div class="splash-logo-wrap">
-      <div class="splash-badge">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M32 7C45.8 7 57 18.2 57 32C57 38.4 54.6 44.2 50.6 48.6" stroke="#f59e0b" stroke-width="3.2" stroke-linecap="round"/>
-          <path d="M13.4 48.6C9.4 44.2 7 38.4 7 32C7 18.2 18.2 7 32 7" stroke="#ea580c" stroke-width="2.8" stroke-linecap="round"/>
-          <circle cx="32" cy="32" r="19" stroke="#ef4444" stroke-width="2.4" stroke-dasharray="92 22"/>
-          <polygon points="23,22 33,22 41,35 50,35 35,38 28,28 19,28" fill="#ef4444"/>
-          <polygon points="29,34 36,34 52,50 33,39" fill="#dc2626"/>
-        </svg>
+  <!-- Compact Centered Startup Logo Splash (2s) with Orange Loading Bar -->
+  <div class="splash-screen" id="splashScreen" aria-hidden="true">
+    <div class="splash-logo-box">
+      <div id="splashLogoSlot"></div>
+      <div class="splash-loader-track">
+        <div class="splash-loader-fill"></div>
       </div>
-      <div class="splash-brand">RESQ POWER</div>
-      <div class="splash-store">STORE</div>
-      <div class="splash-tagline">
-        <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
-      </div>
-    </div>
-
-    <div class="splash-loader-box">
-      <div class="splash-track">
-        <div class="splash-bar" id="splashBar"></div>
-      </div>
-      <div class="splash-pct" id="splashPct">0%</div>
     </div>
   </div>
 
@@ -1062,7 +1299,7 @@
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
   <aside class="drawer" id="navDrawer" aria-label="Menu">
     <div class="drawer-head">
-      <span class="drawer-title" id="dTitle">ResQ Power Menu</span>
+      <span class="drawer-title" id="dTitle">Menu</span>
       <button type="button" class="btn-outline btn-sm" id="closeDrawerBtn">✕</button>
     </div>
 
@@ -1082,6 +1319,10 @@
     <button type="button" class="drawer-item" onclick="openListModal('REM_ITEMS')">
       <span id="dBtnRem">Remaining Qty List</span>
       <span id="mCountRem">0</span>
+    </button>
+    <button type="button" class="drawer-item" onclick="openListModal('RECYCLE_BIN')">
+      <span id="dBtnRecycle">Recycle Bin (30d)</span>
+      <span id="mCountRecycle">0</span>
     </button>
 
     <div class="drawer-section" id="dSecPref">Language &amp; Theme</div>
@@ -1104,188 +1345,213 @@
       <span id="dBtnCsv">Download CSV</span>
       <span>CSV</span>
     </button>
+    <button type="button" class="drawer-item btn-del" id="drawerClearBtn">
+      <span id="dBtnClear">Clear All</span>
+      <span>✕</span>
+    </button>
   </aside>
 
   <div class="app">
-    <!-- Top Search Box Acting as a Dropdown Menu -->
-    <section class="top-dd-search" id="topDdSearch">
-      <button type="button" class="top-dd-trigger" id="topDdTrigger" aria-expanded="false">
-        <span class="top-dd-trigger-left">
-          <span>🔍</span>
-          <span id="topDdLabel">Search Issue Slip</span>
-          <span class="top-dd-trigger-summary" id="topDdSummary">Slip Number / Date / Name</span>
-        </span>
-        <span class="top-dd-arrow" id="topDdArrow">▾</span>
-      </button>
-
-      <div class="top-dd-panel" id="topDdPanel">
-        <div class="dd-field-row">
-          <span class="dd-field-label" id="lblSlipNo">Slip Number</span>
-          <input type="text" id="inSlipNo" />
-        </div>
-        <div class="dd-field-row">
-          <span class="dd-field-label" id="lblDate">Date</span>
-          <input type="text" id="inDate" />
-        </div>
-        <div class="dd-field-row">
-          <span class="dd-field-label" id="lblNameField">Name</span>
-          <input type="text" id="inPersonName" />
-        </div>
-
-        <div class="dd-action-row">
-          <button type="button" class="btn-outline btn-sm" id="btnResetDdSearch">Clear</button>
-          <button type="button" class="btn-primary btn-sm" id="btnRunDdSearch">Search</button>
-        </div>
-
-        <div class="slip-search-results" id="slipSearchResults"></div>
-      </div>
-    </section>
-
-    <!-- Top Header -->
-    <header class="header">
-      <div class="header-top-row">
+    <div class="top-search-wrap">
+      <div class="search-pill">
+        <svg class="white-search-svg" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="13.5" cy="13.5" r="9.5" />
+          <line x1="20.5" y1="20.5" x2="28.5" y2="28.5" />
+        </svg>
+        <input type="text" id="topSlipSearchInput" placeholder="Search Issue Slip" autocomplete="off" />
         <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Open Menu" title="Menu">
           <span></span>
           <span></span>
           <span></span>
         </button>
-
-        <div class="logo-box" aria-label="ResQ Power">
-          <div class="logo-main-row">
-            <span class="logo-word">Res</span>
-            <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M24 6C33.94 6 42 14.06 42 24C42 28.4 40.42 32.43 37.8 35.55" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
-              <path d="M10.2 35.55C7.58 32.43 6 28.4 6 24C6 14.06 14.06 6 24 6" stroke="#ea580c" stroke-width="2.2" stroke-linecap="round"/>
-              <circle cx="24" cy="24" r="14.5" stroke="#dc2626" stroke-width="2" stroke-dasharray="72 18"/>
-              <polygon points="18,17 25,17 31,26 37,26 26,28 21,21 15,21" fill="#dc2626"/>
-              <polygon points="22,25 27,25 39,37 25,29" fill="#dc2626"/>
-            </svg>
-            <span class="logo-word">Power</span>
-          </div>
-          <div class="logo-tagline">
-            <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
-          </div>
-        </div>
       </div>
+      <div class="top-search-results" id="topSlipResults"></div>
+    </div>
 
-      <div class="header-center">
-        <div class="title" id="uiHeaderTitle">Store Material Stock Register</div>
-        <div class="sub" id="uiHeaderSub">Lists, Language &amp; Theme inside 3-line menu</div>
-      </div>
+    <header class="brand-header">
+      <div class="register-subtitle" id="uiHeaderTitle">Store Material Stock Register</div>
     </header>
 
-    <!-- Add Material -->
-    <section class="card">
-      <div class="card-top">
-        <h2 id="uiAddTitle">Add New Item / Bolt</h2>
-      </div>
-      <form class="form-grid" id="addForm">
-        <div>
-          <label for="inName" id="lblName">Item Name</label>
-          <input type="text" id="inName" placeholder="e.g. M6, M10 Bolt" required />
-        </div>
-        <div>
-          <label for="inCol" id="lblCol">Column / Category</label>
-          <input type="text" id="inCol" list="colList" placeholder="e.g. Bolt, Nut, Cable" required />
-          <datalist id="colList"></datalist>
-        </div>
-        <div>
-          <label for="inUnit" id="lblUnit">Unit</label>
-          <select id="inUnit"></select>
-        </div>
-        <div>
-          <label for="inTotal" id="lblTotal">Total Qty</label>
-          <input type="number" id="inTotal" min="0" step="any" placeholder="e.g. 50" required />
-        </div>
-        <div>
-          <label for="inSpec" id="lblSpec">Details / Size</label>
-          <input type="text" id="inSpec" placeholder="e.g. 25mm, 8.8 Grade" />
-        </div>
-        <div>
-          <button type="submit" class="btn-primary" style="width:100%;" id="btnAddSubmit">+ Add Item</button>
-        </div>
-      </form>
-    </section>
+    <h2 class="section-heading" id="uiDashTitle">Dashboard Overview</h2>
+    <div class="dash-grid">
+      <button type="button" class="dash-tile tile-total" onclick="openListModal('ALL_ITEMS')">
+        <span class="dash-icon">📦</span>
+        <span class="dash-meta">
+          <span class="dash-label" id="dashLblTotal">Total Items:</span>
+          <span class="dash-num" id="dashValTotal">0</span>
+        </span>
+      </button>
 
-    <!-- Main Stock Table -->
-    <section class="card">
-      <div class="card-top">
-        <h2 id="uiTableTitle">Stock, Issue &amp; Remaining Table</h2>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="btn-outline" id="lastSlipBtn">Last Issue Slip / PDF</button>
-          <button type="button" class="btn-outline" id="csvBtn">Download CSV</button>
-          <button type="button" class="btn-outline" id="clearAllBtn">Clear All</button>
-        </div>
-      </div>
+      <button type="button" class="dash-tile tile-low" onclick="openListModal('LOW_STOCK')">
+        <span class="dash-icon">⚠️</span>
+        <span class="dash-meta">
+          <span class="dash-label" id="dashLblLow">Low Stock:</span>
+          <span class="dash-num" id="dashValLow">0</span>
+        </span>
+      </button>
 
-      <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="Search item or column..." />
-        <select id="colFilter">
-          <option value="ALL">All Columns / Categories</option>
+      <button type="button" class="dash-tile tile-today" onclick="openListModal('ISSUED_TODAY')">
+        <span class="dash-icon">📤</span>
+        <span class="dash-meta">
+          <span class="dash-label" id="dashLblToday">Issued Today:</span>
+          <span class="dash-num" id="dashValToday">0</span>
+        </span>
+      </button>
+    </div>
+
+    <section class="stock-box">
+      <div class="stock-box-top">
+        <h2 class="section-heading" id="uiStockHeading" style="margin-bottom:0;">Stock, Issue &amp; Remaining</h2>
+        <select id="colFilter" class="field-in" style="width:auto; min-width:140px; padding:5px 9px; font-size:0.8rem;">
+          <option value="ALL">All Categories</option>
         </select>
       </div>
 
-      <div class="table-wrap">
-        <table class="main-table">
-          <thead>
-            <tr>
-              <th id="thSr">Sr.</th>
-              <th id="thCol">Column</th>
-              <th id="thItem">Item</th>
-              <th id="thSpec">Details</th>
-              <th class="num" id="thTotal">Total Qty</th>
-              <th class="num" id="thIssue">Issue (-)</th>
-              <th class="num" id="thRem">Remaining</th>
-              <th id="thAct">Enter Qty &amp; Issue (-) or Add Total (+)</th>
-              <th id="thDel">Delete</th>
-              <th class="th-dd"></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+      <div class="size-search-box">
+        <svg class="white-search-svg" style="width:17px; height:17px;" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="13.5" cy="13.5" r="9.5" />
+          <line x1="20.5" y1="20.5" x2="28.5" y2="28.5" />
+        </svg>
+        <input type="text" id="sizeSearchInput" placeholder="Search size (e.g. M6, M10, M20, 16 sq.mm)..." autocomplete="off" />
       </div>
+
+      <div class="stock-list" id="stockList"></div>
     </section>
   </div>
 
-  <!-- Separate List / History Detail Modal -->
-  <div class="modal" id="listModal">
+  <!-- Generate Combined Slip Bar -->
+  <div class="generate-slip-bar" id="generateSlipBar">
+    <div class="generate-slip-info" id="generateSlipSummary">0 Items selected</div>
+    <button type="button" class="btn-gen-slip" id="generateSlipBtn">Generate Slip</button>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Bottom Navigation">
+    <button type="button" class="nav-btn" id="navSearchBtn">
+      <svg class="white-search-svg" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="13.5" cy="13.5" r="9.5" />
+        <line x1="20.5" y1="20.5" x2="28.5" y2="28.5" />
+      </svg>
+      <span id="navLblSearch">Search</span>
+    </button>
+
+    <div class="nav-plus-wrap" id="navAddBtn">
+      <button type="button" class="nav-plus-btn" aria-label="Add Item">+</button>
+      <span id="navLblAdd">Add</span>
+    </div>
+
+    <button type="button" class="nav-btn" id="navSlipBtn">
+      <span class="nav-badge" id="navSlipBadge">0</span>
+      <svg class="slip-doc-svg" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 2C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2H6ZM13 3.5L18.5 9H14C13.45 9 13 8.55 13 8V3.5ZM7 11H11C11.55 11 12 11.45 12 12C12 12.55 11.55 13 11 13H7C6.45 13 6 12.55 6 12C6 11.45 6.45 11 7 11ZM7 14.5H17C17.55 14.5 18 14.95 18 15.5C18 16.05 17.55 16.5 17 16.5H7C6.45 16.5 6 16.05 6 15.5C6 14.95 6.45 14.5 7 14.5ZM7 18H17C17.55 18 18 18.45 18 19C18 19.55 17.55 20 17 20H7C6.45 20 6 19.55 6 19C6 18.45 6.45 18 7 18Z" fill="currentColor"/>
+      </svg>
+      <span id="navLblSlip">Issue Slip</span>
+    </button>
+  </nav>
+
+  <!-- Add Item Modal -->
+  <div class="modal" id="addModal">
     <div class="modal-box">
+      <div class="modal-top">
+        <h3 id="uiAddTitle">Add New Item / Bolt</h3>
+        <button type="button" class="btn-outline btn-sm" id="closeAddModal">Close</button>
+      </div>
+      <form id="addForm" class="form-grid">
+        <div class="field-group">
+          <label for="inUnit" id="lblUnit">Unit</label>
+          <select id="inUnit" class="field-in"></select>
+        </div>
+
+        <div class="field-group" id="groupCol">
+          <label for="inCol" id="lblCol">Column / Category</label>
+          <div class="combo-wrap" id="wrapCol">
+            <input type="text" id="inCol" class="field-in combo-input" autocomplete="off" required />
+            <button type="button" class="combo-arrow-btn" id="arrowCol" aria-label="Toggle Category List">▾</button>
+            <div class="combo-menu" id="menuCol"></div>
+          </div>
+        </div>
+
+        <div class="field-group" id="groupName">
+          <label for="inName" id="lblName">Item Name / Bolt Size</label>
+          <div class="combo-wrap" id="wrapName">
+            <input type="text" id="inName" class="field-in combo-input" autocomplete="off" required />
+            <button type="button" class="combo-arrow-btn" id="arrowName" aria-label="Toggle Name/Size List">▾</button>
+            <div class="combo-menu" id="menuName"></div>
+          </div>
+        </div>
+
+        <div class="field-group" id="groupSpec">
+          <label for="inSpec" id="lblSpec">Grade / Details</label>
+          <div class="combo-wrap" id="wrapSpec">
+            <input type="text" id="inSpec" class="field-in combo-input" autocomplete="off" />
+            <button type="button" class="combo-arrow-btn" id="arrowSpec" aria-label="Toggle Grade/Details List">▾</button>
+            <div class="combo-menu" id="menuSpec"></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="inTotal" id="lblTotal">Total Qty</label>
+          <input type="number" id="inTotal" class="field-in" min="0" step="any" placeholder="e.g. 100" required />
+        </div>
+
+        <div class="field-group" style="display:flex; align-items:end;">
+          <button type="submit" class="btn-primary" style="width:100%; padding:9px 12px;" id="btnAddSubmit">+ Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Global Search Modal -->
+  <div class="modal" id="globalSearchModal">
+    <div class="modal-box" style="padding-bottom:18px;">
+      <div class="modal-top">
+        <h3 id="globalSearchTitle">Search Anything</h3>
+        <button type="button" class="btn-outline btn-sm" id="closeGlobalSearch">Close</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <input type="text" id="globalSearchInput" class="field-in" placeholder="Search slip no., item, size, grade, category..." />
+      </div>
+      <div class="modal-list-stack" id="globalSearchResults"></div>
+    </div>
+  </div>
+
+  <!-- Date-Wise Issue Slips Modal -->
+  <div class="modal" id="dateSlipsModal">
+    <div class="modal-box" style="padding-bottom:18px;">
+      <div class="modal-top">
+        <h3 id="dateSlipsTitle">Date-wise Issue Slips</h3>
+        <button type="button" class="btn-outline btn-sm" id="closeDateSlips">Close</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <input type="date" id="dateSlipsFilterInput" class="field-in" />
+      </div>
+      <div class="modal-list-stack" id="dateSlipsBody"></div>
+    </div>
+  </div>
+
+  <!-- Separate List / Dashboard / History / Recycle Bin Detail Modal -->
+  <div class="modal" id="listModal">
+    <div class="modal-box" style="padding-bottom:18px;">
       <div class="modal-top">
         <h3 id="listModalTitle">List</h3>
         <button type="button" class="btn-outline btn-sm" id="closeListModal">Close</button>
       </div>
-      <div class="table-wrap">
-        <table class="modal-table">
-          <thead id="listModalHead"></thead>
-          <tbody id="listModalBody"></tbody>
-        </table>
-      </div>
+      <div class="modal-list-stack" id="listModalBody"></div>
     </div>
   </div>
 
   <!-- Issue Slip / PDF Modal -->
   <div class="modal" id="slipModal">
     <div class="slip">
-      <div class="slip-top">
-        <div class="logo-box">
-          <div class="logo-main-row">
-            <span class="logo-word">Res</span>
-            <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M24 6C33.94 6 42 14.06 42 24C42 28.4 40.42 32.43 37.8 35.55" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
-              <path d="M10.2 35.55C7.58 32.43 6 28.4 6 24C6 14.06 14.06 6 24 6" stroke="#ea580c" stroke-width="2.2" stroke-linecap="round"/>
-              <circle cx="24" cy="24" r="14.5" stroke="#dc2626" stroke-width="2" stroke-dasharray="72 18"/>
-              <polygon points="18,17 25,17 31,26 37,26 26,28 21,21 15,21" fill="#dc2626"/>
-              <polygon points="22,25 27,25 39,37 25,29" fill="#dc2626"/>
-            </svg>
-            <span class="logo-word">Power</span>
-          </div>
-          <div class="logo-tagline">
-            <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
-          </div>
-        </div>
+      <div class="slip-brand-banner">
+        <div id="slipLogoSlot"></div>
+        <span style="font-size:0.75rem; font-weight:700; color:var(--muted);">STORE MATERIAL SLIP</span>
+      </div>
 
+      <div class="slip-top">
+        <div>
+          <strong id="sTitleTxt" style="font-size:1.05rem;">Material Issue Slip</strong>
+        </div>
         <div style="text-align:right; font-size:0.82rem;">
-          <div><strong id="sTitleTxt">Material Issue Slip</strong></div>
           <div><strong id="sNoLbl">Slip No.:</strong> <span id="sNo">-</span></div>
           <div><strong id="sTimeLbl">Date/Time:</strong> <span id="sTime">-</span></div>
         </div>
@@ -1298,24 +1564,13 @@
         <div><strong id="sSpecLbl">Details:</strong> <span id="sSpec">-</span></div>
       </div>
 
-      <table class="slip-table">
-        <thead>
-          <tr>
-            <th id="sThTot">Total Qty (Fixed)</th>
-            <th class="num" id="sThIssueNow">Issue Now (-)</th>
-            <th class="num" id="sThIssueAll">Total Issue (-)</th>
-            <th class="num" id="sThRem">Remaining Qty</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td id="sTotal" data-label="Total Qty (Fixed)">-</td>
-            <td class="num issue-val" id="sIssueNow" data-label="Issue Now (-)">-</td>
-            <td class="num issue-val" id="sIssueAll" data-label="Total Issue (-)">-</td>
-            <td class="num" data-label="Remaining Qty"><strong id="sRem">-</strong></td>
-          </tr>
-        </tbody>
-      </table>
+      <div id="sMultiTableWrap" style="display:none; margin-bottom:12px;"></div>
+
+      <div class="slip-summary-box" id="sSingleBox">
+        <div class="slip-stat"><span style="color:var(--muted);" id="sThTot">Total Qty (Fixed):</span> <strong id="sTotal">-</strong></div>
+        <div class="slip-stat"><span style="color:var(--muted);" id="sThIssueNow">Issue Now (-):</span> <strong class="issue-val" id="sIssueNow">-</strong></div>
+        <div class="slip-stat" style="grid-column:1 / -1;"><span style="color:var(--muted);" id="sThRem">Remaining Qty:</span> <strong id="sRem">-</strong></div>
+      </div>
 
       <div class="slip-signs">
         <span id="sSign1">Store Signature</span>
@@ -1330,34 +1585,79 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "resq_power_store_v17";
-    const THEME_KEY = "resq_power_theme_v2";
-    const LANG_MODE_KEY = "resq_power_lang_mode_v1";
-    const SLIP_KEY = "resq_power_last_slip_v17";
+    const STORAGE_KEY = "resq_power_store_v28";
+    const THEME_KEY = "resq_power_theme_v28";
+    const LANG_MODE_KEY = "resq_power_lang_mode_v28";
+    const SLIP_KEY = "resq_power_last_slip_v28";
+    const RECYCLE_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+    const BOLT_SIZES_M6_TO_M30 = [
+      "M6x5", "M6x8", "M6x10", "M6x12", "M6x16", "M6x20", "M6x25", "M6x30", "M6x35", "M6x40", "M6x45", "M6x50", "M6x60", "M6x70", "M6x80",
+      "M8x10", "M8x12", "M8x16", "M8x20", "M8x25", "M8x30", "M8x35", "M8x40", "M8x45", "M8x50", "M8x60", "M8x70", "M8x80", "M8x90", "M8x100",
+      "M10x12", "M10x16", "M10x20", "M10x25", "M10x30", "M10x35", "M10x40", "M10x45", "M10x50", "M10x60", "M10x70", "M10x80", "M10x90", "M10x100", "M10x120",
+      "M12x20", "M12x25", "M12x30", "M12x35", "M12x40", "M12x45", "M12x50", "M12x60", "M12x70", "M12x80", "M12x90", "M12x100", "M12x120", "M12x150",
+      "M14x25", "M14x30", "M14x35", "M14x40", "M14x50", "M14x60", "M14x70", "M14x80", "M14x100", "M14x120",
+      "M16x25", "M16x30", "M16x35", "M16x40", "M16x45", "M16x50", "M16x60", "M16x70", "M16x80", "M16x90", "M16x100", "M16x120", "M16x150",
+      "M18x35", "M18x40", "M18x50", "M18x60", "M18x70", "M18x80", "M18x100", "M18x120",
+      "M20x40", "M20x45", "M20x50", "M20x60", "M20x70", "M20x80", "M20x90", "M20x100", "M20x120", "M20x150", "M20x180", "M20x200",
+      "M22x50", "M22x60", "M22x70", "M22x80", "M22x100", "M22x120", "M22x150",
+      "M24x50", "M24x60", "M24x70", "M24x80", "M24x90", "M24x100", "M24x120", "M24x150", "M24x180", "M24x200", "M24x250",
+      "M27x60", "M27x70", "M27x80", "M27x100", "M27x120", "M27x150", "M27x200",
+      "M30x60", "M30x70", "M30x80", "M30x90", "M30x100", "M30x120", "M30x150", "M30x180", "M30x200", "M30x250", "M30x300"
+    ];
+
+    const NUT_WASHER_SIZES = [
+      "M6", "M8", "M10", "M12", "M14", "M16", "M18", "M20", "M22", "M24", "M27", "M30"
+    ];
+
+    const ALL_BOLT_GRADES = [
+      "Grade 4.6", "Grade 4.8", "Grade 5.6", "Grade 5.8", "Grade 6.8",
+      "Grade 8.8", "Grade 9.8", "Grade 10.9", "Grade 12.9",
+      "SS 304 (A2-70)", "SS 316 (A4-80)", "HDG (Hot Dip Galvanized)", "GI (Zinc Plated)", "High Tensile"
+    ];
+
+    const ALL_WIRE_CABLE_TYPES = [
+      "FR-LSH",
+      "FR-LSH (Flame Retardant Low Smoke Halogen)",
+      "FR-LSHF",
+      "FRLS (Flame Retardant Low Smoke)",
+      "FR (Flame Retardant)",
+      "ZHFR / LSHF (Zero Halogen Flame Retardant)",
+      "HRFR (Heat Resistant Flame Retardant)",
+      "XLPE (1.1 kV Armoured)",
+      "XLPE (1.1 kV Unarmoured)",
+      "PVC Insulated",
+      "11 kV HT Cable",
+      "33 kV HT Cable"
+    ];
 
     const i18n = {
       hi: {
         locale: "hi-IN",
-        headerTitle: "स्टोर मटेरियल स्टॉक रजिस्टर",
-        headerSub: "सूचियां, भाषा व थीम 3-लाइन मेनू के अंदर",
-        topDdLabel: "इश्यू स्लिप खोजें",
-        topDdSummary: "स्लिप नंबर / दिनांक / नाम",
-        lblSlipNo: "स्लिप नंबर",
-        lblDate: "दिनांक",
-        lblNameField: "नाम",
-        btnResetDdSearch: "साफ करें",
-        btnRunDdSearch: "खोजें",
-        alertEmptySearch: "कृपया स्लिप नंबर, दिनांक या नाम में से कम से कम एक जानकारी भरें।",
-        noSlipMatch: "इस जानकारी से जुड़ी कोई इश्यू स्लिप नहीं मिली।",
-        openSlipBtn: "स्लिप / PDF खोलें",
-        issuedToPrefix: "किसको दिया",
-        remAfterPrefix: "बची मात्रा",
-        dTitle: "ResQ Power मेनू",
+        headerTitle: "Store Material Stock Register",
+        dashTitle: "डैशबोर्ड ओवरव्यू",
+        dashLblTotal: "कुल आइटम:",
+        dashLblLow: "कम स्टॉक:",
+        dashLblToday: "आज इश्यू:",
+        stockHeading: "स्टॉक, इश्यू व बची मात्रा",
+        allCols: "सभी कैटेगरी",
+        phSizeSearch: "साइज खोजें (जैसे M6, M10, M20, 16 sq.mm)...",
+        phTopSearch: "इश्यू स्लिप नंबर खोजें",
+        phGlobalSearch: "स्लिप नं., आइटम, साइज, ग्रेड, कैटेगरी खोजें...",
+        globalSearchTitle: "कुछ भी खोजें",
+        dateSlipsTitle: "तारीख-वार इश्यू स्लिप",
+        noSlipFound: "इस खोज से जुड़ी कोई जानकारी नहीं मिली।",
+        openSlip: "स्लिप / PDF",
+        navSearch: "खोजें",
+        navAdd: "जोड़ें",
+        navSlip: "इश्यू स्लिप",
+        dTitle: "मेनू",
         dSecLists: "सूचियां व हिस्ट्री",
         dBtnItems: "कुल आइटम सूची",
         dBtnIssue: "इश्यू मात्रा सूची",
         dBtnHist: "इश्यू हिस्ट्री",
         dBtnRem: "बची मात्रा सूची",
+        dBtnRecycle: "रीसायकल बिन (30 दिन)",
         dSecPref: "भाषा व थीम",
         optDefault: "डिफ़ॉल्ट",
         optHi: "हिंदी",
@@ -1368,47 +1668,38 @@
         dSecDocs: "स्लिप व एक्सपोर्ट",
         dBtnSlip: "पिछली इश्यू स्लिप / PDF",
         dBtnCsv: "CSV डाउनलोड करें",
+        dBtnClear: "सब साफ करें",
         addTitle: "नया आइटम / बोल्ट जोड़ें",
-        lblName: "आइटम का नाम",
-        phName: "जैसे M6, M10 बोल्ट",
-        lblCol: "कॉलम / कैटेगरी",
-        phCol: "जैसे बोल्ट, नट, केबल",
-        colSuggestions: ["बोल्ट", "नट व वॉशर", "केबल व वायर", "हार्डवेयर"],
         lblUnit: "यूनिट",
         units: [
-          { value: "PCS", label: "पीस" },
-          { value: "MTR", label: "मीटर" },
-          { value: "KG", label: "किलो" },
-          { value: "SET", label: "सेट" }
+          { value: "NOS", label: "Nos" },
+          { value: "PCS", label: "Pcs" },
+          { value: "MTR", label: "Mtr" },
+          { value: "KG", label: "Kg" },
+          { value: "SET", label: "Set" }
         ],
+        lblCol: "कॉलम / कैटेगरी",
         lblTotal: "कुल मात्रा",
-        phTotal: "जैसे 50",
-        lblSpec: "विवरण / साइज",
-        phSpec: "जैसे 25mm, 8.8 ग्रेड",
+        phTotal: "जैसे 100",
         btnAddSubmit: "+ आइटम जोड़ें",
-        tableTitle: "स्टॉक, इश्यू व बची मात्रा टेबल",
-        lastSlipBtn: "पिछली इश्यू स्लिप / PDF",
-        csvBtn: "CSV डाउनलोड करें",
-        clearAllBtn: "सब साफ करें",
-        phSearch: "आइटम या कॉलम खोजें...",
-        allCols: "सभी कॉलम / कैटेगरी",
-        thSr: "क्र.",
-        thCol: "कॉलम",
-        thItem: "आइटम",
-        thSpec: "विवरण",
-        thTotal: "कुल मात्रा",
-        thIssue: "इश्यू (-)",
-        thRem: "बची मात्रा",
-        thAct: "मात्रा डालें और इश्यू (-) या कुल जोड़ें (+)",
-        thDel: "हटाएं",
         phQty: "मात्रा",
         phTo: "किसको दिया",
         btnIssue: "- इश्यू",
         btnPlusTotal: "+ कुल",
         btnDelete: "हटाएं",
-        emptyTable: "अभी कोई आइटम नहीं है। ऊपर से नया आइटम (जैसे M6, M10 बोल्ट) जोड़ें।",
-        confirmDelete: (name) => `क्या आप "${name}" को स्टॉक से हटाना चाहते हैं?`,
-        confirmClear: "क्या आप सारा स्टॉक और हिस्ट्री डेटा साफ करना चाहते हैं?",
+        btnRestore: "रीस्टोर",
+        btnPermDelete: "पक्का हटाएं",
+        btnGenerateSlip: "Generate Slip",
+        lblTotShort: "कुल मात्रा",
+        lblIssShort: "इश्यू हुआ",
+        lblRemShort: "बची मात्रा",
+        emptyTable: "अभी कोई आइटम नहीं है। नीचे + Add बटन से नया आइटम जोड़ें।",
+        emptyRecycle: "रीसायकल बिन खाली है। डिलीट हुआ आइटम या स्लिप 30 दिन तक यहां रहती है।",
+        recycleNote: "डिलीट की गई एंट्री / स्लिप 30 दिन तक रीसायकल बिन में रहती है, उसके बाद अपने आप हट जाती है।",
+        daysLeft: (d) => `${d} दिन बाकी`,
+        confirmDelete: (name) => `क्या आप "${name}" को रीसायकल बिन में भेजना चाहते हैं? (30 दिन तक रीस्टोर किया जा सकेगा)`,
+        confirmPermDelete: (name) => `क्या आप "${name}" को हमेशा के लिए हटाना चाहते हैं?`,
+        confirmClear: "क्या आप सारा स्टॉक और हिस्ट्री डेटा रीसायकल बिन में भेजना चाहते हैं? (30 दिन तक सुरक्षित रहेगा)",
         alertQty: "कृपया 0 से बड़ी सही मात्रा डालें।",
         confirmOverIssue: (rem, unit, val) => `बची मात्रा ${rem} ${unit} है, लेकिन आप ${val} ${unit} इश्यू कर रहे हैं। क्या जारी रखें?`,
         defaultReceiver: "स्टोर इश्यू",
@@ -1420,43 +1711,47 @@
         sColLbl: "कॉलम / कैटेगरी:",
         sItemLbl: "आइटम:",
         sSpecLbl: "विवरण:",
-        sThTot: "कुल मात्रा (स्थिर)",
-        sThIssueNow: "इस बार इश्यू (-)",
-        sThIssueAll: "कुल इश्यू हुआ (-)",
-        sThRem: "अब बची मात्रा",
+        sThTot: "कुल मात्रा (स्थिर):",
+        sThIssueNow: "इस बार इश्यू (-):",
+        sThRem: "अब बची मात्रा:",
         sSign1: "स्टोर हस्ताक्षर",
         sSign2: "प्राप्तकर्ता हस्ताक्षर",
         closeBtn: "बंद करें",
-        pdfBtn: "PDF डाउनलोड",
-        savedMsg: (path) => `PDF डाउनलोड/सेव हो गई: ${path}`,
-        pdfFailMsg: "PDF जनरेट या डाउनलोड करने में समस्या आई।",
+        pdfBtn: "PDF डाउनलोड करें",
         mAllTitle: "कुल आइटम सूची",
+        mLowTitle: "कम स्टॉक सूची (≤ 10%)",
+        mTodayTitle: "आज इश्यू हुए आइटम",
         mIssueTitle: "इश्यू मात्रा सूची",
         mHistTitle: "इश्यू हिस्ट्री",
-        mRemTitle: "बची मात्रा सूची"
+        mRemTitle: "बची मात्रा सूची",
+        mRecycleTitle: "रीसायकल बिन (30 दिन)"
       },
       en: {
         locale: "en-IN",
         headerTitle: "Store Material Stock Register",
-        headerSub: "Lists, Language & Theme inside 3-line menu",
-        topDdLabel: "Search Issue Slip",
-        topDdSummary: "Slip Number / Date / Name",
-        lblSlipNo: "Slip Number",
-        lblDate: "Date",
-        lblNameField: "Name",
-        btnResetDdSearch: "Clear",
-        btnRunDdSearch: "Search",
-        alertEmptySearch: "Please enter at least one of Slip Number, Date, or Name.",
-        noSlipMatch: "No matching issue slip found.",
-        openSlipBtn: "Open Slip / PDF",
-        issuedToPrefix: "Issued To",
-        remAfterPrefix: "Remaining",
-        dTitle: "ResQ Power Menu",
+        dashTitle: "Dashboard Overview",
+        dashLblTotal: "Total Items:",
+        dashLblLow: "Low Stock:",
+        dashLblToday: "Issued Today:",
+        stockHeading: "Stock, Issue & Remaining",
+        allCols: "All Categories",
+        phSizeSearch: "Search size (e.g. M6, M10, M20, 16 sq.mm)...",
+        phTopSearch: "Search Issue Slip",
+        phGlobalSearch: "Search slip no., item, size, grade, category...",
+        globalSearchTitle: "Search Anything",
+        dateSlipsTitle: "Date-wise Issue Slips",
+        noSlipFound: "No matching record found.",
+        openSlip: "Slip / PDF",
+        navSearch: "Search",
+        navAdd: "Add",
+        navSlip: "Issue Slip",
+        dTitle: "Menu",
         dSecLists: "Lists & History",
         dBtnItems: "Total Items List",
         dBtnIssue: "Issue Quantity List",
         dBtnHist: "Issued History",
         dBtnRem: "Remaining Qty List",
+        dBtnRecycle: "Recycle Bin (30d)",
         dSecPref: "Language & Theme",
         optDefault: "Default",
         optHi: "हिंदी",
@@ -1467,47 +1762,38 @@
         dSecDocs: "Slip & Export",
         dBtnSlip: "Last Issue Slip / PDF",
         dBtnCsv: "Download CSV",
+        dBtnClear: "Clear All",
         addTitle: "Add New Item / Bolt",
-        lblName: "Item Name",
-        phName: "e.g. M6, M10 Bolt",
-        lblCol: "Column / Category",
-        phCol: "e.g. Bolt, Nut, Cable",
-        colSuggestions: ["Bolt", "Nut & Washer", "Cable & Wire", "Hardware"],
         lblUnit: "Unit",
         units: [
+          { value: "NOS", label: "Nos" },
           { value: "PCS", label: "Pcs" },
           { value: "MTR", label: "Mtr" },
           { value: "KG", label: "Kg" },
           { value: "SET", label: "Set" }
         ],
+        lblCol: "Column / Category",
         lblTotal: "Total Qty",
-        phTotal: "e.g. 50",
-        lblSpec: "Details / Size",
-        phSpec: "e.g. 25mm, 8.8 Grade",
+        phTotal: "e.g. 100",
         btnAddSubmit: "+ Add Item",
-        tableTitle: "Stock, Issue & Remaining Table",
-        lastSlipBtn: "Last Issue Slip / PDF",
-        csvBtn: "Download CSV",
-        clearAllBtn: "Clear All",
-        phSearch: "Search item or column...",
-        allCols: "All Columns / Categories",
-        thSr: "Sr.",
-        thCol: "Column",
-        thItem: "Item",
-        thSpec: "Details",
-        thTotal: "Total Qty",
-        thIssue: "Issue (-)",
-        thRem: "Remaining",
-        thAct: "Enter Qty & Issue (-) or Add Total (+)",
-        thDel: "Delete",
         phQty: "Qty",
         phTo: "Issued to",
         btnIssue: "- Issue",
         btnPlusTotal: "+ Total",
         btnDelete: "Delete",
-        emptyTable: "No items yet. Add a new item (like M6, M10 bolt) above.",
-        confirmDelete: (name) => `Delete "${name}" from stock?`,
-        confirmClear: "Clear all stock and history data?",
+        btnRestore: "Restore",
+        btnPermDelete: "Delete Forever",
+        btnGenerateSlip: "Generate Slip",
+        lblTotShort: "Total Qty",
+        lblIssShort: "Issued",
+        lblRemShort: "Remaining",
+        emptyTable: "No items yet. Tap + Add below to add an item.",
+        emptyRecycle: "Recycle Bin is empty. Deleted items or slips stay here for 30 days.",
+        recycleNote: "Deleted entries / slips stay in Recycle Bin for 30 days and are automatically removed after 30 days.",
+        daysLeft: (d) => `${d}d left`,
+        confirmDelete: (name) => `Move "${name}" to Recycle Bin? (Restorable for 30 days)`,
+        confirmPermDelete: (name) => `Permanently delete "${name}"?`,
+        confirmClear: "Move all stock and history data to Recycle Bin? (Kept for 30 days)",
         alertQty: "Please enter a valid quantity greater than 0.",
         confirmOverIssue: (rem, unit, val) => `Remaining is ${rem} ${unit}, but issuing ${val} ${unit}. Continue?`,
         defaultReceiver: "Store Issue",
@@ -1519,31 +1805,30 @@
         sColLbl: "Column / Category:",
         sItemLbl: "Item:",
         sSpecLbl: "Details:",
-        sThTot: "Total Qty (Fixed)",
-        sThIssueNow: "Issue Now (-)",
-        sThIssueAll: "Total Issue (-)",
-        sThRem: "Remaining Qty",
+        sThTot: "Total Qty (Fixed):",
+        sThIssueNow: "Issue Now (-):",
+        sThRem: "Remaining Qty:",
         sSign1: "Store Signature",
         sSign2: "Receiver Signature",
         closeBtn: "Close",
         pdfBtn: "Download PDF",
-        savedMsg: (path) => `Saved PDF: ${path}`,
-        pdfFailMsg: "Failed to generate or download PDF.",
         mAllTitle: "Total Items List",
+        mLowTitle: "Low Stock List (≤ 10%)",
+        mTodayTitle: "Issued Today",
         mIssueTitle: "Issue Quantity List",
         mHistTitle: "Issued History",
-        mRemTitle: "Remaining Qty List"
+        mRemTitle: "Remaining Qty List",
+        mRecycleTitle: "Recycle Bin (30 Days)"
       }
     };
 
-    const emptyState = { items: [], history: [] };
+    const emptyState = { items: [], history: [], recycleBin: [] };
 
     function detectDeviceLang() {
       const list = Array.isArray(navigator.languages) && navigator.languages.length
         ? navigator.languages
         : [navigator.language || ""];
-      const joined = list.join(",").toLowerCase();
-      return joined.includes("hi") ? "hi" : "en";
+      return list.join(",").toLowerCase().includes("hi") ? "hi" : "en";
     }
 
     let state = loadState();
@@ -1551,213 +1836,543 @@
     let currentLang = langMode === "default" ? detectDeviceLang() : (langMode === "en" ? "en" : "hi");
     let slipSeq = Number(localStorage.getItem(STORAGE_KEY + "_seq") || "0");
     let lastSlipData = loadLastSlip();
-    let openRowIds = new Set();
+    let openCardIds = new Set();
+    let blinkCardIds = new Set();
     let activeModalMode = null;
-    let openModalRowIds = new Set();
-    let ddSearchOpen = false;
-    let hasExecutedDdSearch = false;
+    let pendingIssueBatch = new Map();
+
+    let currentColOptions = [];
+    let currentNameOptions = [];
+    let currentSpecOptions = [];
 
     function t() {
       return i18n[currentLang] || i18n.en;
     }
 
-    function runSplashLoader() {
-      const splash = document.getElementById("splashScreen");
-      const bar = document.getElementById("splashBar");
-      const pctEl = document.getElementById("splashPct");
-      if (!splash || !bar || !pctEl) return;
+    // Automatically purge items/slips older than 30 days in Recycle Bin
+    function purgeExpiredRecycleBin() {
+      if (!Array.isArray(state.recycleBin)) {
+        state.recycleBin = [];
+        return false;
+      }
+      const now = Date.now();
+      const beforeLen = state.recycleBin.length;
+      state.recycleBin = state.recycleBin.filter(entry => {
+        const deletedAt = Number(entry.deletedAt) || 0;
+        return (now - deletedAt) < RECYCLE_DAYS_MS;
+      });
+      return state.recycleBin.length !== beforeLen;
+    }
 
-      let pct = 0;
-      const timer = setInterval(() => {
-        pct += 4;
-        if (pct > 100) pct = 100;
-        bar.style.width = pct + "%";
-        pctEl.textContent = pct + "%";
+    function getRecycleDaysRemaining(deletedAt) {
+      const elapsed = Math.max(0, Date.now() - (Number(deletedAt) || Date.now()));
+      const remMs = Math.max(0, RECYCLE_DAYS_MS - elapsed);
+      return Math.max(1, Math.ceil(remMs / (24 * 60 * 60 * 1000)));
+    }
 
-        if (pct >= 100) {
-          clearInterval(timer);
-          setTimeout(() => {
-            splash.classList.add("hide");
-          }, 180);
+    function moveItemToRecycleBin(item) {
+      if (!Array.isArray(state.recycleBin)) state.recycleBin = [];
+      state.recycleBin.unshift({
+        binId: "bin-item-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        kind: "ITEM",
+        deletedAt: Date.now(),
+        data: structuredClone(item)
+      });
+    }
+
+    function moveHistoryToRecycleBin(histEntry) {
+      if (!Array.isArray(state.recycleBin)) state.recycleBin = [];
+      state.recycleBin.unshift({
+        binId: "bin-hist-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        kind: "HISTORY",
+        deletedAt: Date.now(),
+        data: structuredClone(histEntry)
+      });
+    }
+
+    function restoreRecycleEntry(binId) {
+      if (!Array.isArray(state.recycleBin)) return;
+      const idx = state.recycleBin.findIndex(e => e.binId === binId);
+      if (idx === -1) return;
+      const [entry] = state.recycleBin.splice(idx, 1);
+
+      if (entry.kind === "ITEM" && entry.data) {
+        const existingIdx = state.items.findIndex(i => i.id === entry.data.id);
+        if (existingIdx === -1) {
+          state.items.unshift(entry.data);
+        } else {
+          state.items.unshift({ ...entry.data, id: "itm-" + Date.now() });
         }
-      }, 60);
+      } else if (entry.kind === "HISTORY" && entry.data) {
+        state.history.unshift(entry.data);
+        state.history.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
+      }
+
+      saveState();
+      renderAll();
+      playAddTotalSound();
     }
 
-    function getCapacitorPlugins() {
-      const cap = window.Capacitor;
-      if (!cap) return null;
-      const isNative = typeof cap.isNativePlatform === "function" ? cap.isNativePlatform() : Boolean(cap.Plugins);
-      if (!isNative) return null;
+    function permanentDeleteRecycleEntry(binId) {
+      if (!Array.isArray(state.recycleBin)) return;
+      const entry = state.recycleBin.find(e => e.binId === binId);
+      if (!entry) return;
+      const label = entry.kind === "ITEM"
+        ? (entry.data?.name || "Item")
+        : `${entry.data?.slipNo || "Slip"} (${entry.data?.itemName || ""})`;
+      if (!confirm(t().confirmPermDelete(label))) return;
 
-      const plugins = cap.Plugins || {};
-      const Filesystem = plugins.Filesystem || cap.Filesystem || null;
-      const Share = plugins.Share || cap.Share || null;
-      const Directory = plugins.Directory || (Filesystem && Filesystem.Directory) || {
-        Documents: "DOCUMENTS",
-        ExternalStorage: "EXTERNAL_STORAGE",
-        Cache: "CACHE"
+      state.recycleBin = state.recycleBin.filter(e => e.binId !== binId);
+      saveState();
+      renderAll();
+      playDeleteSound();
+    }
+
+    // Exact ResQ Power Logo Markup matching reference image (Res + Q with red bolt cutout + tagline)
+    function getResQLogoHtml(compact = true) {
+      const textStyle = compact ? "font-size:1.15rem;" : "font-size:1.38rem;";
+      const svgSize = compact ? 22 : 26;
+      const tagStyle = compact ? "font-size:0.38rem;" : "font-size:0.44rem;";
+      const padStyle = compact ? "padding:6px 10px 7px;" : "padding:8px 13px 9px;";
+
+      return `
+        <div class="resq-logo-card" style="${padStyle}">
+          <div class="resq-logo-row">
+            <span class="resq-logo-text" style="${textStyle}">Res</span>
+            <svg width="${svgSize}" height="${svgSize}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Q">
+              <path d="M24 5C34.5 5 43 13.5 43 24C43 29.3 40.8 34.1 37.3 37.5" stroke="#eab308" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M10.7 37.5C7.2 34.1 5 29.3 5 24C5 13.5 13.5 5 24 5" stroke="#f97316" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="24" cy="24" r="14.5" stroke="#dc2626" stroke-width="2.3"/>
+              <path d="M31 32L41 42L27.5 34.5Z" fill="#dc2626"/>
+              <polygon points="16.5,14 25.5,14 22.5,22.5 31.5,22.5 19.5,35.5 22,25.5 14.5,25.5" fill="#dc2626"/>
+            </svg>
+            <span class="resq-logo-text" style="${textStyle}">Power</span>
+          </div>
+          <div class="resq-logo-tagline" style="${tagStyle}">
+            <span class="r">R</span>ELIABLE, <span class="r">E</span>CONOMICAL <span class="r">S</span>AFE &amp; <span class="r">Q</span>UALITY <span class="r">P</span>OWER
+          </div>
+        </div>
+      `;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const splashSlot = document.getElementById("splashLogoSlot");
+      const slipSlot = document.getElementById("slipLogoSlot");
+      if (splashSlot) splashSlot.innerHTML = getResQLogoHtml(true);
+      if (slipSlot) slipSlot.innerHTML = getResQLogoHtml(true);
+
+      const splash = document.getElementById("splashScreen");
+      if (splash) {
+        setTimeout(() => {
+          splash.classList.add("hide");
+        }, 2000);
+      }
+    });
+
+    function playToneSequence(notes) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        notes.forEach((n) => {
+          const startAt = now + (n.delay || 0);
+          const dur = n.dur || 0.16;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = n.type || "sine";
+          osc.frequency.setValueAtTime(n.freq, startAt);
+
+          gain.gain.setValueAtTime(0.0001, startAt);
+          gain.gain.exponentialRampToValueAtTime(n.vol || 0.18, startAt + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startAt + dur);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startAt);
+          osc.stop(startAt + dur + 0.02);
+        });
+
+        setTimeout(() => {
+          ctx.close().catch(() => {});
+        }, 800);
+      } catch {}
+    }
+
+    function playIssueQueuedSound() {
+      playToneSequence([
+        { freq: 740, delay: 0, dur: 0.11, type: "sine", vol: 0.17 },
+        { freq: 980, delay: 0.12, dur: 0.13, type: "sine", vol: 0.17 }
+      ]);
+    }
+
+    function playGenerateSlipSound() {
+      playToneSequence([
+        { freq: 587.33, delay: 0, dur: 0.12, type: "triangle", vol: 0.2 },
+        { freq: 783.99, delay: 0.11, dur: 0.12, type: "triangle", vol: 0.2 },
+        { freq: 1046.5, delay: 0.22, dur: 0.22, type: "triangle", vol: 0.22 }
+      ]);
+    }
+
+    function playAddTotalSound() {
+      playToneSequence([
+        { freq: 523.25, delay: 0, dur: 0.11, type: "sine", vol: 0.18 },
+        { freq: 659.25, delay: 0.1, dur: 0.11, type: "sine", vol: 0.18 },
+        { freq: 880, delay: 0.2, dur: 0.16, type: "sine", vol: 0.18 }
+      ]);
+    }
+
+    function playDeleteSound() {
+      playToneSequence([
+        { freq: 440, delay: 0, dur: 0.13, type: "sawtooth", vol: 0.13 },
+        { freq: 293.66, delay: 0.12, dur: 0.2, type: "sawtooth", vol: 0.13 }
+      ]);
+    }
+
+    function slideCardAboveGenerateBar(cardId) {
+      const card = document.getElementById("card-" + cardId);
+      if (!card) return;
+      const bar = document.getElementById("generateSlipBar");
+      const barActive = bar && bar.classList.contains("show");
+      const safeBottom = barActive ? (window.innerHeight - 138) : (window.innerHeight - 84);
+
+      const ensureClearance = () => {
+        const rect = card.getBoundingClientRect();
+        if (rect.bottom > safeBottom) {
+          window.scrollBy({ top: rect.bottom - safeBottom + 14, behavior: "smooth" });
+        } else if (rect.top < 10) {
+          window.scrollBy({ top: rect.top - 12, behavior: "smooth" });
+        }
       };
-      return { cap, Filesystem, Share, Directory };
+
+      ensureClearance();
+      setTimeout(ensureClearance, 160);
+      setTimeout(ensureClearance, 360);
     }
 
-    function textToBase64Utf8(str) {
-      const bytes = new TextEncoder().encode(str);
-      let bin = "";
-      for (let i = 0; i < bytes.length; i++) {
-        bin += String.fromCharCode(bytes[i]);
-      }
-      return btoa(bin);
+    function pdfEscape(str) {
+      return String(str ?? "")
+        .replace(/[^\x20-\x7E]/g, (ch) => {
+          const code = ch.charCodeAt(0);
+          return code <= 255 ? String.fromCharCode(code) : "*";
+        })
+        .replace(/\\/g, "\\\\")
+        .replace(/\(/g, "\\(")
+        .replace(/\)/g, "\\)");
     }
 
-    function cleanPdfText(v) {
-      return String(v ?? "-")
-        .replace(/[^\x20-\x7E]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim() || "-";
-    }
-
-    function createSlipPdfDoc(slip) {
-      const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
-      if (!jsPDFCtor) return null;
-
-      const doc = new jsPDFCtor({ orientation: "portrait", unit: "mm", format: "a4" });
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.text("ResQ Power", 14, 18);
-
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      doc.text("RELIABLE, ECONOMICAL SAFE & QUALITY POWER", 14, 23);
-
-      doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
-      doc.text("Material Issue Slip", 196, 18, { align: "right" });
-
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Slip No.: ${cleanPdfText(slip.no)}`, 196, 24, { align: "right" });
-      doc.text(`Date/Time: ${cleanPdfText(slip.time)}`, 196, 29, { align: "right" });
-
-      doc.setDrawColor(180);
-      doc.line(14, 34, 196, 34);
-
-      doc.setFontSize(10);
-      doc.text(`Issued To: ${cleanPdfText(slip.party)}`, 14, 43);
-      doc.text(`Column / Category: ${cleanPdfText(slip.col)}`, 108, 43);
-      doc.text(`Item: ${cleanPdfText(slip.itemName)}`, 14, 51);
-      doc.text(`Details: ${cleanPdfText(slip.spec)}`, 108, 51);
-
-      doc.setFillColor(243, 244, 246);
-      doc.rect(14, 60, 182, 9, "F");
-      doc.setFont("helvetica", "bold");
-      doc.text("Total Qty", 16, 66);
-      doc.text("Issue Now (-)", 68, 66);
-      doc.text("Total Issue (-)", 118, 66);
-      doc.text("Remaining", 166, 66);
-
-      doc.setFont("helvetica", "normal");
-      doc.rect(14, 69, 182, 10);
-      doc.text(cleanPdfText(slip.total), 16, 75.5);
-      doc.text(cleanPdfText(slip.issueNow), 68, 75.5);
-      doc.text(cleanPdfText(slip.issueAll), 118, 75.5);
-      doc.setFont("helvetica", "bold");
-      doc.text(cleanPdfText(slip.rem), 166, 75.5);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text("Store Signature", 14, 105);
-      doc.text("Receiver Signature", 150, 105);
-
-      return doc;
-    }
-
-    async function saveBase64ToAndroid(Filesystem, Directory, fileName, base64Data, mimeType) {
-      if (Filesystem.requestPermissions) {
-        try {
-          await Filesystem.requestPermissions();
-        } catch (_) {}
-      }
-
-      const targets = [
-        { directory: Directory.ExternalStorage, path: `Download/${fileName}`, label: `Download/${fileName}` },
-        { directory: Directory.Documents, path: fileName, label: `Documents/${fileName}` },
-        { directory: Directory.Cache, path: fileName, label: `Cache/${fileName}` }
+    function buildSlipPdfBlob(d) {
+      const lines = [
+        "ResQ Power - RELIABLE, ECONOMICAL SAFE & QUALITY POWER",
+        "MATERIAL ISSUE SLIP",
+        "------------------------------------------------------------",
+        `Slip No.      : ${d.no || "-"}`,
+        `Date / Time   : ${d.time || "-"}`,
+        `Issued To     : ${d.party || "-"}`,
+        "------------------------------------------------------------"
       ];
 
-      let lastErr = null;
-      for (const t of targets) {
-        try {
-          const res = await Filesystem.writeFile({
-            path: t.path,
-            data: base64Data,
-            directory: t.directory,
-            recursive: true
-          });
-          return { res, label: t.label };
-        } catch (e) {
-          lastErr = e;
-        }
+      if (Array.isArray(d.multiItems) && d.multiItems.length) {
+        d.multiItems.forEach((entry, idx) => {
+          lines.push(`${idx + 1}. ${entry.name} (${entry.col || "-"}) -> Issued: ${entry.qty} ${entry.unit} | Rem: ${entry.remAfter} ${entry.unit}`);
+        });
+      } else {
+        lines.push(`Category      : ${d.col || "-"}`);
+        lines.push(`Item          : ${d.itemName || "-"}`);
+        lines.push(`Details       : ${d.spec || "-"}`);
+        lines.push(`Total Qty     : ${d.total || "-"}`);
+        lines.push(`Issue Now     : ${d.issueNow || "-"}`);
+        lines.push(`Remaining Qty : ${d.rem || "-"}`);
       }
-      throw lastErr || new Error("Write failed");
+
+      lines.push("------------------------------------------------------------");
+      lines.push("");
+      lines.push("Store Signature                    Receiver Signature");
+
+      let content = "BT\n/F1 11 Tf\n44 775 Td\n16 TL\n";
+      lines.forEach((line, idx) => {
+        if (idx === 0) content += `(${pdfEscape(line)}) Tj\n`;
+        else content += `T* (${pdfEscape(line)}) Tj\n`;
+      });
+      content += "ET\n";
+
+      const objects = [
+        "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+        "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
+        "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n",
+        `4 0 obj\n<< /Length ${content.length} >>\nstream\n${content}endstream\nendobj\n`,
+        "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
+      ];
+
+      let pdf = "%PDF-1.4\n";
+      const offsets = [0];
+      for (const obj of objects) {
+        offsets.push(pdf.length);
+        pdf += obj;
+      }
+      const xrefPos = pdf.length;
+      pdf += `xref\n0 ${objects.length + 1}\n`;
+      pdf += "0000000000 65535 f \n";
+      for (let i = 1; i <= objects.length; i++) {
+        pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
+      }
+      pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
+
+      return new Blob([pdf], { type: "application/pdf" });
     }
 
-    async function handleSavePdfOrPrint() {
-      const trs = t();
-      const slipForExport = lastSlipData || {
-        no: document.getElementById("sNo").textContent || "-",
-        time: document.getElementById("sTime").textContent || "-",
-        party: document.getElementById("sParty").textContent || "-",
-        col: document.getElementById("sCol").textContent || "-",
-        itemName: document.getElementById("sItem").textContent || "-",
-        spec: document.getElementById("sSpec").textContent || "-",
-        total: document.getElementById("sTotal").textContent || "-",
-        issueNow: document.getElementById("sIssueNow").textContent || "-",
-        issueAll: document.getElementById("sIssueAll").textContent || "-",
-        rem: document.getElementById("sRem").textContent || "-"
+    function downloadCurrentSlipPdf() {
+      const d = lastSlipData || {
+        no: document.getElementById("sNo").textContent.trim() || "SLIP-0001",
+        time: document.getElementById("sTime").textContent.trim() || new Date().toLocaleString(),
+        party: document.getElementById("sParty").textContent.trim() || "-",
+        col: document.getElementById("sCol").textContent.trim() || "-",
+        itemName: document.getElementById("sItem").textContent.trim() || "-",
+        spec: document.getElementById("sSpec").textContent.trim() || "-",
+        total: document.getElementById("sTotal").textContent.trim() || "-",
+        issueNow: document.getElementById("sIssueNow").textContent.trim() || "-",
+        rem: document.getElementById("sRem").textContent.trim() || "-"
       };
 
-      const safeNo = String(slipForExport.no || "Slip").replace(/[^a-zA-Z0-9_-]/g, "_");
-      const fileName = `${safeNo}-Issue-Slip.pdf`;
-      const doc = createSlipPdfDoc(slipForExport);
+      const blob = buildSlipPdfBlob(d);
+      const safeName = (d.no || "Issue-Slip").replace(/[^a-zA-Z0-9_-]/g, "_") + ".pdf";
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = safeName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
 
-      if (!doc) {
-        alert(trs.pdfFailMsg);
+    function triggerSingleVibrationOnLowStock() {
+      try {
+        if (navigator && typeof navigator.vibrate === "function") {
+          navigator.vibrate(220);
+        }
+      } catch {}
+    }
+
+    function getSmartPresets(unitCode, categoryText) {
+      const cat = (categoryText || "").trim().toLowerCase();
+      const isHi = currentLang === "hi";
+
+      const isNut = cat.includes("nut") || cat.includes("नट");
+      const isWasher = cat.includes("washer") || cat.includes("वॉशर");
+      const isBolt = cat.includes("bolt") || cat.includes("बोल्ट") || cat.includes("stud");
+      const isCable = cat.includes("cable") || cat.includes("wire") || cat.includes("केबल") || cat.includes("वायर") || cat.includes("fr-lsh") || cat.includes("frls");
+      const isBusbar = cat.includes("busbar") || cat.includes("copper") || cat.includes("aluminium") || cat.includes("rod") || cat.includes("रॉड");
+
+      if (isCable || unitCode === "MTR") {
+        return {
+          categories: ["Wire", "Cable", "FR-LSH Wire", "Rope", "Heat Shrink Sleeve", "Flexible Conduit"],
+          catPlaceholder: isHi ? "जैसे Wire, Cable, Rope, FR-LSH" : "e.g. Wire, Cable, Rope, FR-LSH",
+          nameLabel: isHi ? "आइटम नाम / साइज" : "Item Name / Size",
+          namePlaceholder: isHi ? "जैसे 1 Core 1.5 sq.mm या 12mm Rope" : "e.g. 1 Core 1.5 sq.mm or 12mm Rope",
+          names: [
+            "1 Core 1.0 sq.mm Wire", "1 Core 1.5 sq.mm Wire", "1 Core 2.5 sq.mm Wire",
+            "1 Core 4 sq.mm Wire", "1 Core 6 sq.mm Wire", "1 Core 10 sq.mm Wire",
+            "1 Core 16 sq.mm Cable", "1 Core 35 sq.mm Cable", "1 Core 70 sq.mm Cable",
+            "4 Core 16 sq.mm Cable", "8mm Rope", "12mm Rope", "16mm Rope", "20mm Rope"
+          ],
+          specLabel: isHi ? "वायर / केबल टाइप (FR-LSH आदि)" : "Wire / Cable Type (FR-LSH etc.)",
+          specPlaceholder: isHi ? "टाइप चुनें (जैसे FR-LSH, FRLS, FR, ZHFR)" : "Select Type (e.g. FR-LSH, FRLS, FR, ZHFR)",
+          specs: ALL_WIRE_CABLE_TYPES
+        };
+      }
+
+      if (unitCode === "KG") {
+        return {
+          categories: ["Copper Busbar", "Aluminium Busbar", "MS Rod / Flat", "Rope", "Welding Rod", "Hardware"],
+          catPlaceholder: isHi ? "जैसे Copper Busbar, Rope" : "e.g. Copper Busbar, Rope",
+          nameLabel: isHi ? "मटेरियल नाम / साइज" : "Material Name / Size",
+          namePlaceholder: isHi ? "जैसे Copper Flat 50x10mm या Rope" : "e.g. Copper Flat 50x10mm or Rope",
+          names: [
+            "Copper Flat 25x5mm", "Copper Flat 40x6mm", "Copper Flat 50x10mm", "Copper Flat 80x10mm",
+            "Aluminium Flat 40x6mm", "Aluminium Flat 50x10mm", "MS Round Rod 12mm", "Rope Coil"
+          ],
+          specLabel: isHi ? "मटेरियल ग्रेड / फिनिश" : "Material Grade / Finish",
+          specPlaceholder: isHi ? "जैसे ETP Copper, Tin Plated" : "e.g. ETP Copper, Tin Plated",
+          specs: [
+            "ETP Grade Copper", "Tin Plated", "6061-T6 Aluminium", "IS 2062 Mild Steel", "Raw Finish"
+          ]
+        };
+      }
+
+      if (unitCode === "SET") {
+        return {
+          categories: ["Nut-Bolt-Washer Set", "Lug & Gland Kit", "Terminal Block Set", "Rope & Hook Set"],
+          catPlaceholder: isHi ? "जैसे Nut-Bolt-Washer Set" : "e.g. Nut-Bolt-Washer Set",
+          nameLabel: isHi ? "सेट नाम / साइज" : "Set Name / Size",
+          namePlaceholder: isHi ? "जैसे M10x40 Bolt+Nut+Washer Set" : "e.g. M10x40 Bolt+Nut+Washer Set",
+          names: BOLT_SIZES_M6_TO_M30,
+          specLabel: isHi ? "ग्रेड / किट विवरण" : "Grade / Kit Details",
+          specPlaceholder: isHi ? "जैसे Grade 8.8 + 2 Plain + 1 Spring" : "e.g. Grade 8.8 + 2 Plain + 1 Spring",
+          specs: ALL_BOLT_GRADES
+        };
+      }
+
+      if (!isBolt && !isNut && !isWasher && !isBusbar && cat.length > 0) {
+        return {
+          categories: ["Bolt", "Nut", "Washer", "Rope", "Wire", "Cable", "Lug", "Hardware"],
+          catPlaceholder: isHi ? "कैटेगरी चुनें या लिखें" : "Select or type category",
+          nameLabel: isHi ? "आइटम का नाम" : "Item Name",
+          namePlaceholder: isHi ? "आइटम का नाम या साइज लिखें" : "Enter item name or size",
+          names: cat.includes("rope") || cat.includes("रस्सी") ? ["6mm Rope", "10mm Rope", "12mm Rope", "16mm Rope", "20mm Rope", "24mm Rope"] : [],
+          specLabel: isHi ? "विवरण / साइज / प्रकार" : "Details / Size / Type",
+          specPlaceholder: isHi ? "आइटम का विवरण लिखें (वैकल्पिक)" : "Enter item details (optional)",
+          specs: []
+        };
+      }
+
+      const sizeList = (isNut || isWasher) ? NUT_WASHER_SIZES : BOLT_SIZES_M6_TO_M30;
+      return {
+        categories: ["Bolt", "Nut", "Washer", "Spring Washer", "Stud", "Rope", "Wire", "Cable"],
+        catPlaceholder: isHi ? "कैटेगरी चुनें (Bolt, Nut, Washer...)" : "Select Category (Bolt, Nut, Washer...)",
+        nameLabel: isHi ? "आइटम नाम / साइज (M6x5 से M30)" : "Item Name / Size (M6x5 to M30)",
+        namePlaceholder: (isNut || isWasher) ? "e.g. M10, M12, M16" : "e.g. M6x5, M10x40, M30x100",
+        names: sizeList,
+        specLabel: isHi ? "बोल्ट / नट ग्रेड" : "Bolt / Nut Grade",
+        specPlaceholder: isHi ? "ग्रेड चुनें (जैसे Grade 8.8, 10.9, SS 304)" : "Select Grade (e.g. Grade 8.8, 10.9, SS 304)",
+        specs: ALL_BOLT_GRADES
+      };
+    }
+
+    function closeAllComboMenus(exceptMenuId = null) {
+      document.querySelectorAll(".combo-menu").forEach(m => {
+        if (m.id !== exceptMenuId) m.classList.remove("open");
+      });
+      document.querySelectorAll(".field-group").forEach(g => {
+        const hasOpenMenu = g.querySelector(".combo-menu.open");
+        if (!hasOpenMenu) g.classList.remove("dropdown-active");
+      });
+    }
+
+    function updateAddFormContext(clearValuesOnUnitChange = false) {
+      const unitCode = document.getElementById("inUnit").value || "NOS";
+      const colInput = document.getElementById("inCol");
+      const nameInput = document.getElementById("inName");
+      const specInput = document.getElementById("inSpec");
+
+      if (clearValuesOnUnitChange) {
+        colInput.value = "";
+        nameInput.value = "";
+        specInput.value = "";
+      }
+
+      const preset = getSmartPresets(unitCode, colInput.value);
+      currentColOptions = preset.categories;
+      currentNameOptions = preset.names;
+      currentSpecOptions = preset.specs;
+
+      document.getElementById("lblCol").textContent = t().lblCol;
+      colInput.placeholder = preset.catPlaceholder;
+
+      document.getElementById("lblName").textContent = preset.nameLabel;
+      nameInput.placeholder = preset.namePlaceholder;
+
+      document.getElementById("lblSpec").textContent = preset.specLabel;
+      specInput.placeholder = preset.specPlaceholder;
+
+      if (document.getElementById("menuCol").classList.contains("open")) {
+        renderComboMenu("menuCol", currentColOptions, colInput.value);
+      }
+      if (document.getElementById("menuName").classList.contains("open")) {
+        renderComboMenu("menuName", currentNameOptions, nameInput.value);
+      }
+      if (document.getElementById("menuSpec").classList.contains("open")) {
+        renderComboMenu("menuSpec", currentSpecOptions, specInput.value);
+      }
+    }
+
+    function renderComboMenu(menuId, options, filterText) {
+      const menu = document.getElementById(menuId);
+      const q = (filterText || "").trim().toLowerCase();
+      const filtered = q
+        ? options.filter(opt => opt.toLowerCase().includes(q))
+        : options;
+
+      if (!filtered.length) {
+        menu.innerHTML = "";
+        menu.classList.remove("open");
         return;
       }
 
-      const native = getCapacitorPlugins();
-      if (native && native.Filesystem) {
-        try {
-          const dataUri = doc.output("datauristring");
-          const base64Pdf = String(dataUri).split(",")[1] || "";
-          const saved = await saveBase64ToAndroid(
-            native.Filesystem,
-            native.Directory,
-            fileName,
-            base64Pdf,
-            "application/pdf"
-          );
+      menu.innerHTML = filtered
+        .map(opt => `<div class="combo-opt" data-val="${esc(opt)}">${esc(opt)}</div>`)
+        .join("");
+    }
 
-          if (native.Share && saved.res && saved.res.uri) {
-            try {
-              await native.Share.share({
-                title: fileName,
-                text: fileName,
-                url: saved.res.uri,
-                dialogTitle: fileName
-              });
-              return;
-            } catch (_) {}
-          }
+    function setupSingleCombo(inputId, arrowId, menuId, groupId, getOptionsFn, onSelectCallback) {
+      const input = document.getElementById(inputId);
+      const arrow = document.getElementById(arrowId);
+      const menu = document.getElementById(menuId);
+      const group = document.getElementById(groupId);
 
-          alert(trs.savedMsg(saved.label));
+      const showDropdown = (useFilter) => {
+        const opts = getOptionsFn();
+        if (!opts || !opts.length) {
+          closeAllComboMenus();
           return;
-        } catch (err) {
-          console.error("Capacitor PDF download error:", err);
         }
-      }
+        closeAllComboMenus(menuId);
+        renderComboMenu(menuId, opts, useFilter ? input.value : "");
+        if (menu.innerHTML) {
+          menu.classList.add("open");
+          if (group) group.classList.add("dropdown-active");
+        }
+      };
 
-      doc.save(fileName);
+      input.addEventListener("focus", () => showDropdown(false));
+      input.addEventListener("input", () => {
+        showDropdown(true);
+        if (onSelectCallback) onSelectCallback();
+      });
+
+      arrow.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (menu.classList.contains("open")) {
+          closeAllComboMenus();
+        } else {
+          input.focus();
+          showDropdown(false);
+        }
+      });
+
+      menu.addEventListener("click", (e) => {
+        const item = e.target.closest(".combo-opt");
+        if (!item) return;
+        e.preventDefault();
+        e.stopPropagation();
+        input.value = item.getAttribute("data-val") || "";
+        closeAllComboMenus();
+        if (onSelectCallback) onSelectCallback();
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".combo-wrap")) {
+        closeAllComboMenus();
+      }
+    });
+
+    function todayISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function getStockPercent(item) {
+      const tot = Number(item.totalQty) || 0;
+      const iss = Number(item.issueQty) || 0;
+      if (tot <= 0) return 0;
+      const rem = Math.max(0, tot - iss);
+      return Math.max(0, Math.min(100, (rem / tot) * 100));
     }
 
     function isLowStock10(item) {
@@ -1767,26 +2382,91 @@
       return tot > 0 && rem <= tot * 0.1;
     }
 
-    function sortLowStockFirst(list) {
+    function sortByLowestPctFirst(list) {
       return [...list].sort((a, b) => {
-        const aLow = isLowStock10(a) ? 1 : 0;
-        const bLow = isLowStock10(b) ? 1 : 0;
-        return bLow - aLow;
+        const pctA = getStockPercent(a);
+        const pctB = getStockPercent(b);
+        if (pctA !== pctB) return pctA - pctB;
+        return Number(isLowStock10(b)) - Number(isLowStock10(a));
       });
     }
 
     function formatUnit(unitCode) {
       const found = t().units.find(u => u.value === unitCode);
       if (found) return found.label;
-      const legacyMap = {
+      const map = {
+        "नग": "NOS", "nos": "NOS", "NOS": "NOS",
         "पीस": "PCS", "pcs": "PCS", "PCS": "PCS",
         "मीटर": "MTR", "mtr": "MTR", "MTR": "MTR",
         "किलो": "KG", "kg": "KG", "KG": "KG",
         "सेट": "SET", "set": "SET", "SET": "SET"
       };
-      const normalized = legacyMap[unitCode] || unitCode;
-      const matched = t().units.find(u => u.value === normalized);
+      const matched = t().units.find(u => u.value === (map[unitCode] || unitCode));
       return matched ? matched.label : unitCode;
+    }
+
+    function getThreadedBoltSvg() {
+      return `<svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="rotate(-45 32 32)">
+          <rect x="20" y="7" width="24" height="12" rx="4" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+          <path d="M26 7V19M38 7V19" stroke="#475569" stroke-width="1.8"/>
+          <rect x="25" y="19" width="14" height="34" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="2"/>
+          <line x1="23" y1="24" x2="41" y2="27" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="23" y1="30" x2="41" y2="33" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="23" y1="36" x2="41" y2="39" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="23" y1="42" x2="41" y2="45" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="23" y1="48" x2="41" y2="51" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+        </g>
+      </svg>`;
+    }
+
+    function detectItemVisual(item) {
+      const txt = `${item.col || ""} ${item.name || ""}`.toLowerCase();
+      const caption = item.name || item.col || "Item";
+
+      if (txt.includes("nut") || txt.includes("नट") || txt.includes("bolt") || txt.includes("बोल्ट") || txt.includes("stud")) {
+        return { label: caption, svg: getThreadedBoltSvg() };
+      }
+      if (txt.includes("rope") || txt.includes("रस्सी")) {
+        return {
+          label: caption,
+          svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="14" stroke="#eab308" stroke-width="5" stroke-dasharray="7 3"/><circle cx="24" cy="24" r="6" stroke="#ca8a04" stroke-width="3.5" stroke-dasharray="5 3"/></svg>`
+        };
+      }
+      if (txt.includes("rod") || txt.includes("रॉड") || txt.includes("bar")) {
+        return {
+          label: caption,
+          svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect x="8" y="19" width="32" height="10" rx="4" transform="rotate(-35 24 24)" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/></svg>`
+        };
+      }
+      if (txt.includes("washer") || txt.includes("वॉशर")) {
+        return {
+          label: caption,
+          svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="15" fill="#94a3b8" stroke="#e2e8f0" stroke-width="2"/><circle cx="24" cy="24" r="6.5" fill="#1e293b" stroke="#64748b" stroke-width="2"/></svg>`
+        };
+      }
+      if (txt.includes("cable") || txt.includes("wire") || txt.includes("केबल") || txt.includes("वायर") || txt.includes("fr-lsh")) {
+        return {
+          label: caption,
+          svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M10 32C14 16 24 14 28 24C32 34 38 26 39 15" stroke="#f97316" stroke-width="4.5" stroke-linecap="round"/><path d="M10 32C14 16 24 14 28 24C32 34 38 26 39 15" stroke="#fdba74" stroke-width="1.5" stroke-linecap="round"/></svg>`
+        };
+      }
+      if (txt.includes("lug") || txt.includes("ग्लैंड") || txt.includes("gland")) {
+        return {
+          label: caption,
+          svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect x="9" y="18" width="18" height="12" rx="3" fill="#f59e0b" stroke="#fef08a" stroke-width="1.6"/><circle cx="33" cy="24" r="7" fill="none" stroke="#f59e0b" stroke-width="4"/></svg>`
+        };
+      }
+      if (txt.includes("tape") || txt.includes("टेप") || txt.includes("sleeve") || txt.includes("स्लीव")) {
+        return {
+          label: caption,
+          svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="14" fill="#38bdf8" stroke="#e0f2fe" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="#0f172a" stroke="#7dd3fc" stroke-width="1.8"/></svg>`
+        };
+      }
+      return {
+        label: caption,
+        svg: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="28" rx="6" fill="#60a5fa" stroke="#dbeafe" stroke-width="2"/><path d="M17 24H31M24 17V31" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/></svg>`
+      };
     }
 
     function loadState() {
@@ -1794,9 +2474,8 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return structuredClone(emptyState);
         const p = JSON.parse(raw);
-        if (!Array.isArray(p.items) || !Array.isArray(p.history)) {
-          return structuredClone(emptyState);
-        }
+        if (!Array.isArray(p.items) || !Array.isArray(p.history)) return structuredClone(emptyState);
+        if (!Array.isArray(p.recycleBin)) p.recycleBin = [];
         return p;
       } catch {
         return structuredClone(emptyState);
@@ -1822,145 +2501,262 @@
     }
 
     function esc(v) {
-      return String(v ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+      return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    function setTopDdOpen(open) {
-      ddSearchOpen = open;
-      const box = document.getElementById("topDdSearch");
-      const trig = document.getElementById("topDdTrigger");
-      const arr = document.getElementById("topDdArrow");
-      box.classList.toggle("open", open);
-      trig.setAttribute("aria-expanded", String(open));
-      arr.textContent = open ? "▴" : "▾";
-    }
+    function renderGenerateSlipBar() {
+      const bar = document.getElementById("generateSlipBar");
+      const summaryEl = document.getElementById("generateSlipSummary");
+      const btnEl = document.getElementById("generateSlipBtn");
+      const entries = [...pendingIssueBatch.values()];
 
-    function updateTopDdSummary() {
-      const trs = t();
-      const sNo = document.getElementById("inSlipNo").value.trim();
-      const sDt = document.getElementById("inDate").value.trim();
-      const sNm = document.getElementById("inPersonName").value.trim();
-      const parts = [];
-      if (sNo) parts.push(`${trs.lblSlipNo}: ${sNo}`);
-      if (sDt) parts.push(`${trs.lblDate}: ${sDt}`);
-      if (sNm) parts.push(`${trs.lblNameField}: ${sNm}`);
-      document.getElementById("topDdSummary").textContent = parts.length ? parts.join(" • ") : trs.topDdSummary;
-    }
+      btnEl.textContent = t().btnGenerateSlip;
 
-    function executeDdSearch(showAlertIfEmpty = true) {
-      const trs = t();
-      const slipNoQ = document.getElementById("inSlipNo").value.trim().toLowerCase();
-      const dateQ = document.getElementById("inDate").value.trim().toLowerCase();
-      const nameQ = document.getElementById("inPersonName").value.trim().toLowerCase();
-      const container = document.getElementById("slipSearchResults");
-
-      updateTopDdSummary();
-
-      if (!slipNoQ && !dateQ && !nameQ) {
-        hasExecutedDdSearch = false;
-        container.innerHTML = "";
-        if (showAlertIfEmpty) alert(trs.alertEmptySearch);
+      if (!entries.length) {
+        bar.classList.remove("show");
+        document.body.classList.remove("slip-bar-active");
         return;
       }
 
-      hasExecutedDdSearch = true;
+      bar.classList.add("show");
+      document.body.classList.add("slip-bar-active");
+      const preview = entries.map(e => `${e.name} (${e.qty} ${e.unit})`).join(", ");
+      summaryEl.textContent = `${entries.length} Item(s): ${preview}`;
+    }
 
-      const matches = state.history.filter(h => {
-        const okSlip = !slipNoQ || (h.slipNo || "").toLowerCase().includes(slipNoQ);
-        const okDate = !dateQ || (h.time || "").toLowerCase().includes(dateQ);
-        const okName = !nameQ || (h.receiver || "").toLowerCase().includes(nameQ);
-        return okSlip && okDate && okName;
+    function generateCombinedIssueSlip() {
+      const trs = t();
+      const entries = [...pendingIssueBatch.values()];
+      if (!entries.length) return;
+
+      const nowObj = new Date();
+      const nowStr = nowObj.toLocaleString(trs.locale);
+      const isoDate = todayISO();
+
+      slipSeq += 1;
+      localStorage.setItem(STORAGE_KEY + "_seq", String(slipSeq));
+      const slipNo = "SLIP-" + String(slipSeq).padStart(4, "0");
+
+      const firstReceiver = entries[0].receiver || trs.defaultReceiver;
+
+      entries.forEach((entry, idx) => {
+        state.history.unshift({
+          id: "h-" + Date.now() + "-" + idx,
+          slipNo,
+          time: nowStr,
+          isoDate,
+          receiver: entry.receiver || firstReceiver,
+          col: entry.col,
+          itemName: entry.name,
+          unit: entry.unit,
+          qty: entry.qty,
+          remAfter: entry.remAfter
+        });
       });
 
-      if (!matches.length) {
-        container.innerHTML = `<div class="slip-search-card"><span class="slip-search-line2">${esc(trs.noSlipMatch)}</span></div>`;
+      pendingIssueBatch.clear();
+      saveState();
+      renderAll();
+      playGenerateSlipSound();
+
+      const slipPayload = {
+        no: slipNo,
+        time: nowStr,
+        party: firstReceiver,
+        col: entries.length === 1 ? entries[0].col : "Multiple",
+        itemName: entries.length === 1 ? `${entries[0].name} (${entries[0].unit})` : `${entries.length} Items`,
+        spec: entries.length === 1 ? (entries[0].spec || "-") : entries.map(e => `${e.name}: ${e.qty} ${e.unit}`).join(", "),
+        multiItems: entries
+      };
+
+      saveLastSlip(slipPayload);
+      showSlip(slipPayload);
+    }
+
+    function renderTopSlipResults() {
+      const q = document.getElementById("topSlipSearchInput").value.trim().toLowerCase();
+      const box = document.getElementById("topSlipResults");
+      if (!q) {
+        box.innerHTML = "";
         return;
       }
-
-      if (matches.length === 1) {
-        container.innerHTML = "";
+      const matches = state.history.filter(h => (h.slipNo || "").toLowerCase().includes(q));
+      if (!matches.length) {
+        box.innerHTML = `<div class="search-result-card"><span style="font-size:0.82rem; color:var(--muted);">${esc(t().noSlipFound)}</span></div>`;
+        return;
+      }
+      if (matches.length === 1 && (matches[0].slipNo || "").toLowerCase() === q) {
+        box.innerHTML = "";
         openSlipFromHistory(matches[0].id);
         return;
       }
-
-      container.innerHTML = matches.map(h => {
+      box.innerHTML = matches.map(h => {
         const unitLabel = formatUnit(h.unit);
         return `
-          <div class="slip-search-card">
-            <div class="slip-search-meta">
-              <div class="slip-search-line1">${esc(h.slipNo)} • ${esc(h.time)} • ${esc(trs.issuedToPrefix)}: ${esc(h.receiver)}</div>
-              <div class="slip-search-line2">${esc(h.itemName)} (${esc(h.col)}) — <span class="issue-val">-${h.qty} ${esc(unitLabel)}</span> | ${esc(trs.remAfterPrefix)}: ${h.remAfter} ${esc(unitLabel)}</div>
+          <div class="search-result-card">
+            <div style="font-size:0.83rem;">
+              <strong>${esc(h.slipNo)}</strong> • ${esc(h.itemName)} <span class="issue-val">(-${h.qty} ${esc(unitLabel)})</span>
+              <div style="font-size:0.76rem; color:var(--muted);">${esc(h.time)} • ${esc(h.receiver)}</div>
             </div>
-            <button type="button" class="btn-primary btn-sm" onclick="openSlipFromHistory('${esc(h.id)}')">${esc(trs.openSlipBtn)}</button>
+            <button type="button" class="btn-primary btn-sm" onclick="openSlipFromHistory('${esc(h.id)}')">${esc(t().openSlip)}</button>
           </div>
         `;
       }).join("");
     }
 
     function openSlipFromHistory(histId) {
-      const h = state.history.find(entry => entry.id === histId);
+      const h = state.history.find(x => x.id === histId);
       if (!h) return;
-      const unitLabel = formatUnit(h.unit);
-      const matchedItem = state.items.find(it => it.name === h.itemName && it.col === h.col);
-      const currentTotal = matchedItem ? (Number(matchedItem.totalQty) || 0) : (Number(h.qty) + Number(h.remAfter));
-      const currentIssueAll = matchedItem ? (Number(matchedItem.issueQty) || Number(h.qty)) : Number(h.qty);
+      const sameSlipRows = state.history.filter(x => x.slipNo === h.slipNo);
+      if (sameSlipRows.length > 1) {
+        showSlip({
+          no: h.slipNo,
+          time: h.time,
+          party: h.receiver,
+          col: "Multiple",
+          itemName: `${sameSlipRows.length} Items`,
+          spec: sameSlipRows.map(r => `${r.itemName}: ${r.qty} ${formatUnit(r.unit)}`).join(", "),
+          multiItems: sameSlipRows.map(r => ({
+            name: r.itemName,
+            col: r.col,
+            qty: r.qty,
+            unit: formatUnit(r.unit),
+            remAfter: r.remAfter
+          }))
+        });
+        return;
+      }
 
+      const unitLabel = formatUnit(h.unit);
+      const matched = state.items.find(i => i.name === h.itemName && i.col === h.col);
+      const tot = matched ? (Number(matched.totalQty) || 0) : (Number(h.qty) + Number(h.remAfter));
       showSlip({
         no: h.slipNo,
         time: h.time,
         party: h.receiver,
         col: h.col,
         itemName: `${h.itemName} (${unitLabel})`,
-        spec: matchedItem && matchedItem.spec ? matchedItem.spec : "-",
-        total: `${currentTotal} ${unitLabel}`,
+        spec: matched && matched.spec ? matched.spec : "-",
+        total: `${tot} ${unitLabel}`,
         issueNow: `-${h.qty} ${unitLabel}`,
-        issueAll: `-${currentIssueAll} ${unitLabel}`,
         rem: `${h.remAfter} ${unitLabel}`
       });
     }
 
-    function toggleRowDropdown(id) {
-      const tr = document.getElementById("row-" + id);
-      const btn = document.getElementById("dd-" + id);
-      if (!tr) return;
-
-      if (openRowIds.has(id)) {
-        openRowIds.delete(id);
-        tr.classList.remove("open");
-        if (btn) btn.textContent = "▾";
-      } else {
-        openRowIds.add(id);
-        tr.classList.add("open");
-        if (btn) btn.textContent = "▴";
-      }
+    function openDateSlipsModal(isoDate) {
+      const targetIso = isoDate || todayISO();
+      document.getElementById("dateSlipsFilterInput").value = targetIso;
+      renderDateSlipsList(targetIso);
+      document.getElementById("dateSlipsModal").classList.add("show");
     }
 
-    function toggleModalRowDropdown(key) {
-      const tr = document.getElementById("mrow-" + key);
-      const btn = document.getElementById("mdd-" + key);
-      if (!tr) return;
-
-      if (openModalRowIds.has(key)) {
-        openModalRowIds.delete(key);
-        tr.classList.remove("m-open");
-        if (btn) btn.textContent = "▾";
-      } else {
-        openModalRowIds.add(key);
-        tr.classList.add("m-open");
-        if (btn) btn.textContent = "▴";
+    function renderDateSlipsList(isoDate) {
+      const body = document.getElementById("dateSlipsBody");
+      const filtered = state.history.filter(h => (h.isoDate || "") === isoDate);
+      if (!filtered.length) {
+        body.innerHTML = `<div class="info-row-card"><span style="color:var(--muted); font-size:0.84rem;">${esc(t().noSlipFound)}</span></div>`;
+        return;
       }
+      body.innerHTML = filtered.map(h => {
+        const unitLabel = formatUnit(h.unit);
+        return `
+          <div class="info-row-card">
+            <div style="font-size:0.84rem;">
+              <strong>${esc(h.slipNo)}</strong> • ${esc(h.itemName)} <span class="issue-val">(-${h.qty} ${esc(unitLabel)})</span>
+              <div style="font-size:0.76rem; color:var(--muted);">${esc(h.time)} • ${esc(h.receiver)}</div>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn-primary btn-sm" onclick="openSlipFromHistory('${esc(h.id)}')">${esc(t().openSlip)}</button>
+              <button type="button" class="btn-del btn-sm" onclick="deleteHistoryEntry('${esc(h.id)}', '${esc(isoDate)}')">${esc(t().btnDelete)}</button>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
-    /* Theme */
+    function deleteHistoryEntry(histId, filterIso = null) {
+      const h = state.history.find(x => x.id === histId);
+      if (!h) return;
+      const label = `${h.slipNo || "Slip"} - ${h.itemName || ""}`;
+      if (!confirm(t().confirmDelete(label))) return;
+
+      moveHistoryToRecycleBin(h);
+      state.history = state.history.filter(x => x.id !== histId);
+      saveState();
+      renderAll();
+      if (filterIso) renderDateSlipsList(filterIso);
+      playDeleteSound();
+    }
+
+    function openGlobalSearchModal() {
+      document.getElementById("globalSearchInput").value = "";
+      renderGlobalSearchResults();
+      document.getElementById("globalSearchModal").classList.add("show");
+      setTimeout(() => document.getElementById("globalSearchInput").focus(), 40);
+    }
+
+    function renderGlobalSearchResults() {
+      const q = document.getElementById("globalSearchInput").value.trim().toLowerCase();
+      const box = document.getElementById("globalSearchResults");
+      const itemMatches = state.items.filter(i =>
+        !q ||
+        (i.name || "").toLowerCase().includes(q) ||
+        (i.col || "").toLowerCase().includes(q) ||
+        (i.spec || "").toLowerCase().includes(q) ||
+        (i.unit || "").toLowerCase().includes(q)
+      );
+      const slipMatches = state.history.filter(h =>
+        !q ||
+        (h.slipNo || "").toLowerCase().includes(q) ||
+        (h.itemName || "").toLowerCase().includes(q) ||
+        (h.receiver || "").toLowerCase().includes(q) ||
+        (h.time || "").toLowerCase().includes(q)
+      );
+
+      let html = "";
+      itemMatches.forEach(i => {
+        const tot = Number(i.totalQty) || 0;
+        const iss = Number(i.issueQty) || 0;
+        const rem = tot - iss;
+        const unitLabel = formatUnit(i.unit);
+        html += `
+          <div class="info-row-card">
+            <div style="font-size:0.84rem;">
+              <strong>${esc(i.name)}</strong> (${esc(unitLabel)}) • ${esc(i.spec || "-")}
+              <div style="font-size:0.76rem; color:var(--muted);">${esc(i.col)} • ${esc(t().lblRemShort)}: <strong>${rem}</strong> / ${tot}</div>
+            </div>
+            <button type="button" class="btn-outline btn-sm" onclick="focusStockCard('${esc(i.id)}')">Open</button>
+          </div>
+        `;
+      });
+
+      slipMatches.forEach(h => {
+        const unitLabel = formatUnit(h.unit);
+        html += `
+          <div class="info-row-card">
+            <div style="font-size:0.84rem;">
+              <strong>${esc(h.slipNo)}</strong> • ${esc(h.itemName)} <span class="issue-val">(-${h.qty} ${esc(unitLabel)})</span>
+              <div style="font-size:0.76rem; color:var(--muted);">${esc(h.time)} • ${esc(h.receiver)}</div>
+            </div>
+            <button type="button" class="btn-primary btn-sm" onclick="openSlipFromHistory('${esc(h.id)}')">${esc(t().openSlip)}</button>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html || `<div class="info-row-card"><span style="color:var(--muted); font-size:0.84rem;">${esc(t().noSlipFound)}</span></div>`;
+    }
+
+    function focusStockCard(id) {
+      document.getElementById("globalSearchModal").classList.remove("show");
+      openCardIds.add(id);
+      renderStockList();
+      slideCardAboveGenerateBar(id);
+    }
+
     function applyTheme(theme) {
       document.documentElement.setAttribute("data-theme", theme);
       localStorage.setItem(THEME_KEY, theme);
-      const tr = t();
-      document.getElementById("drawerThemeVal").textContent = theme === "dark" ? tr.themeDark : tr.themeLight;
+      document.getElementById("drawerThemeVal").textContent = theme === "dark" ? t().themeDark : t().themeLight;
     }
 
     function toggleTheme() {
@@ -1968,7 +2764,6 @@
       applyTheme(curr === "dark" ? "light" : "dark");
     }
 
-    /* Language */
     function setLanguageMode(mode) {
       langMode = mode;
       localStorage.setItem(LANG_MODE_KEY, mode);
@@ -1979,17 +2774,22 @@
     function applyLanguage() {
       const tr = t();
       document.documentElement.lang = currentLang;
-
       document.getElementById("uiHeaderTitle").textContent = tr.headerTitle;
-      document.getElementById("uiHeaderSub").textContent = tr.headerSub;
+      document.getElementById("uiDashTitle").textContent = tr.dashTitle;
+      document.getElementById("dashLblTotal").textContent = tr.dashLblTotal;
+      document.getElementById("dashLblLow").textContent = tr.dashLblLow;
+      document.getElementById("dashLblToday").textContent = tr.dashLblToday;
+      document.getElementById("uiStockHeading").textContent = tr.stockHeading;
+      document.getElementById("sizeSearchInput").placeholder = tr.phSizeSearch;
 
-      document.getElementById("topDdLabel").textContent = tr.topDdLabel;
-      document.getElementById("lblSlipNo").textContent = tr.lblSlipNo;
-      document.getElementById("lblDate").textContent = tr.lblDate;
-      document.getElementById("lblNameField").textContent = tr.lblNameField;
-      document.getElementById("btnResetDdSearch").textContent = tr.btnResetDdSearch;
-      document.getElementById("btnRunDdSearch").textContent = tr.btnRunDdSearch;
-      updateTopDdSummary();
+      document.getElementById("topSlipSearchInput").placeholder = tr.phTopSearch;
+      document.getElementById("globalSearchInput").placeholder = tr.phGlobalSearch;
+      document.getElementById("globalSearchTitle").textContent = tr.globalSearchTitle;
+      document.getElementById("dateSlipsTitle").textContent = tr.dateSlipsTitle;
+
+      document.getElementById("navLblSearch").textContent = tr.navSearch;
+      document.getElementById("navLblAdd").textContent = tr.navAdd;
+      document.getElementById("navLblSlip").textContent = tr.navSlip;
 
       document.getElementById("dTitle").textContent = tr.dTitle;
       document.getElementById("dSecLists").textContent = tr.dSecLists;
@@ -1997,12 +2797,11 @@
       document.getElementById("dBtnIssue").textContent = tr.dBtnIssue;
       document.getElementById("dBtnHist").textContent = tr.dBtnHist;
       document.getElementById("dBtnRem").textContent = tr.dBtnRem;
+      document.getElementById("dBtnRecycle").textContent = tr.dBtnRecycle;
       document.getElementById("dSecPref").textContent = tr.dSecPref;
-
       document.getElementById("langOptDefault").textContent = tr.optDefault;
       document.getElementById("langOptHi").textContent = tr.optHi;
       document.getElementById("langOptEn").textContent = tr.optEn;
-
       document.getElementById("langOptDefault").classList.toggle("active", langMode === "default");
       document.getElementById("langOptHi").classList.toggle("active", langMode === "hi");
       document.getElementById("langOptEn").classList.toggle("active", langMode === "en");
@@ -2014,46 +2813,20 @@
       document.getElementById("dSecDocs").textContent = tr.dSecDocs;
       document.getElementById("dBtnSlip").textContent = tr.dBtnSlip;
       document.getElementById("dBtnCsv").textContent = tr.dBtnCsv;
+      document.getElementById("dBtnClear").textContent = tr.dBtnClear;
 
       document.getElementById("uiAddTitle").textContent = tr.addTitle;
-      document.getElementById("lblName").textContent = tr.lblName;
-      document.getElementById("inName").placeholder = tr.phName;
-      document.getElementById("lblCol").textContent = tr.lblCol;
-      document.getElementById("inCol").placeholder = tr.phCol;
-
-      document.getElementById("colList").innerHTML = tr.colSuggestions
-        .map(c => `<option value="${esc(c)}"></option>`)
-        .join("");
-
       const unitSelect = document.getElementById("inUnit");
-      const prevUnit = unitSelect.value || "PCS";
-      unitSelect.innerHTML = tr.units
-        .map(u => `<option value="${esc(u.value)}">${esc(u.label)}</option>`)
-        .join("");
+      const prevUnit = unitSelect.value || "NOS";
+      unitSelect.innerHTML = tr.units.map(u => `<option value="${esc(u.value)}">${esc(u.label)}</option>`).join("");
       unitSelect.value = tr.units.some(u => u.value === prevUnit) ? prevUnit : tr.units[0].value;
 
       document.getElementById("lblUnit").textContent = tr.lblUnit;
       document.getElementById("lblTotal").textContent = tr.lblTotal;
       document.getElementById("inTotal").placeholder = tr.phTotal;
-      document.getElementById("lblSpec").textContent = tr.lblSpec;
-      document.getElementById("inSpec").placeholder = tr.phSpec;
       document.getElementById("btnAddSubmit").textContent = tr.btnAddSubmit;
 
-      document.getElementById("uiTableTitle").textContent = tr.tableTitle;
-      document.getElementById("lastSlipBtn").textContent = tr.lastSlipBtn;
-      document.getElementById("csvBtn").textContent = tr.csvBtn;
-      document.getElementById("clearAllBtn").textContent = tr.clearAllBtn;
-      document.getElementById("searchInput").placeholder = tr.phSearch;
-
-      document.getElementById("thSr").textContent = tr.thSr;
-      document.getElementById("thCol").textContent = tr.thCol;
-      document.getElementById("thItem").textContent = tr.thItem;
-      document.getElementById("thSpec").textContent = tr.thSpec;
-      document.getElementById("thTotal").textContent = tr.thTotal;
-      document.getElementById("thIssue").textContent = tr.thIssue;
-      document.getElementById("thRem").textContent = tr.thRem;
-      document.getElementById("thAct").textContent = tr.thAct;
-      document.getElementById("thDel").textContent = tr.thDel;
+      updateAddFormContext(false);
 
       document.getElementById("sTitleTxt").textContent = tr.sTitleTxt;
       document.getElementById("sNoLbl").textContent = tr.sNoLbl;
@@ -2064,25 +2837,20 @@
       document.getElementById("sSpecLbl").textContent = tr.sSpecLbl;
       document.getElementById("sThTot").textContent = tr.sThTot;
       document.getElementById("sThIssueNow").textContent = tr.sThIssueNow;
-      document.getElementById("sThIssueAll").textContent = tr.sThIssueAll;
       document.getElementById("sThRem").textContent = tr.sThRem;
-      document.getElementById("sTotal").setAttribute("data-label", tr.sThTot);
-      document.getElementById("sIssueNow").setAttribute("data-label", tr.sThIssueNow);
-      document.getElementById("sIssueAll").setAttribute("data-label", tr.sThIssueAll);
-      document.getElementById("sRem").setAttribute("data-label", tr.sThRem);
       document.getElementById("sSign1").textContent = tr.sSign1;
       document.getElementById("sSign2").textContent = tr.sSign2;
       document.getElementById("closeSlip").textContent = tr.closeBtn;
       document.getElementById("closeListModal").textContent = tr.closeBtn;
+      document.getElementById("closeAddModal").textContent = tr.closeBtn;
+      document.getElementById("closeGlobalSearch").textContent = tr.closeBtn;
+      document.getElementById("closeDateSlips").textContent = tr.closeBtn;
       document.getElementById("savePdfBtn").textContent = tr.pdfBtn;
 
       updateFilter();
-      if (hasExecutedDdSearch) executeDdSearch(false);
-      renderTable();
-      if (activeModalMode) renderModalContent(activeModalMode);
+      renderAll();
     }
 
-    /* Drawer */
     function openDrawer() {
       document.getElementById("navDrawer").classList.add("open");
       document.getElementById("drawerBackdrop").classList.add("open");
@@ -2107,87 +2875,142 @@
       if (cols.includes(current)) sel.value = current;
     }
 
-    function renderDrawerCounts() {
+    function renderDashboardAndCounts() {
+      let totalItemsQty = 0;
       let issueSum = 0;
       let remSum = 0;
+      let lowCount = 0;
 
       state.items.forEach(i => {
         const tot = Number(i.totalQty) || 0;
         const iss = Number(i.issueQty) || 0;
+        totalItemsQty += tot;
         issueSum += iss;
         remSum += (tot - iss);
+        if (isLowStock10(i)) lowCount += 1;
       });
+
+      const todayStr = todayISO();
+      const todaySlips = state.history.filter(h => (h.isoDate || "") === todayStr);
+      const todayQtySum = todaySlips.reduce((acc, h) => acc + (Number(h.qty) || 0), 0);
+
+      document.getElementById("dashValTotal").textContent = state.items.length ? totalItemsQty : 0;
+      document.getElementById("dashValLow").textContent = lowCount;
+      document.getElementById("dashValToday").textContent = todayQtySum;
 
       document.getElementById("mCountItems").textContent = state.items.length;
       document.getElementById("mCountIssue").textContent = issueSum;
       document.getElementById("mCountHist").textContent = state.history.length;
       document.getElementById("mCountRem").textContent = remSum;
+      document.getElementById("mCountRecycle").textContent = Array.isArray(state.recycleBin) ? state.recycleBin.length : 0;
+      document.getElementById("navSlipBadge").textContent = String(todaySlips.length);
     }
 
-    function renderTable() {
+    function toggleCardDropdown(id) {
+      const willOpen = !openCardIds.has(id);
+      if (willOpen) openCardIds.add(id);
+      else openCardIds.delete(id);
+      renderStockList();
+      if (willOpen) {
+        slideCardAboveGenerateBar(id);
+      }
+    }
+
+    function renderStockList() {
       const trs = t();
-      const body = document.getElementById("tableBody");
-      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const listEl = document.getElementById("stockList");
       const col = document.getElementById("colFilter").value;
+      const sizeQ = document.getElementById("sizeSearchInput").value.trim().toLowerCase();
 
-      const filtered = state.items.filter(i => {
-        const okCol = col === "ALL" || i.col === col;
-        const okTxt =
-          i.name.toLowerCase().includes(q) ||
-          i.col.toLowerCase().includes(q) ||
-          (i.spec || "").toLowerCase().includes(q);
-        return okCol && okTxt;
-      });
+      let filtered = state.items.filter(i => col === "ALL" || i.col === col);
 
-      const list = sortLowStockFirst(filtered);
+      if (sizeQ) {
+        filtered = filtered.filter(i =>
+          `${i.name || ""} ${i.spec || ""} ${i.col || ""}`.toLowerCase().includes(sizeQ)
+        );
+      }
 
-      if (!list.length) {
-        body.innerHTML = `<tr class="empty-row"><td colspan="10" style="padding:18px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+      const sorted = sortByLowestPctFirst(filtered);
+
+      if (!sorted.length) {
+        listEl.innerHTML = `<div class="info-row-card" style="justify-content:center; color:var(--muted);">${esc(sizeQ ? trs.noSlipFound : trs.emptyTable)}</div>`;
         return;
       }
 
-      body.innerHTML = "";
-      list.forEach((item, index) => {
-        const total = Number(item.totalQty) || 0;
-        const issue = Number(item.issueQty) || 0;
-        const rem = total - issue;
-        const specText = item.spec || "-";
-        const unitLabel = formatUnit(item.unit);
-        const isOpen = openRowIds.has(item.id);
+      listEl.innerHTML = "";
+      sorted.forEach(item => {
+        const tot = Number(item.totalQty) || 0;
+        const iss = Number(item.issueQty) || 0;
+        const rem = tot - iss;
+        const pct = getStockPercent(item);
+        const pctRounded = Math.round(pct);
         const isLow = isLowStock10(item);
+        const isBlinking = blinkCardIds.has(item.id);
+        const isOpen = openCardIds.has(item.id);
+        const unitLabel = formatUnit(item.unit);
+        const visual = detectItemVisual(item);
+        const queuedEntry = pendingIssueBatch.get(item.id);
 
-        const tr = document.createElement("tr");
-        tr.id = "row-" + item.id;
-        if (isOpen) tr.classList.add("open");
-        if (isLow) tr.classList.add("low-stock-row");
+        let pctClass = "pct-green";
+        if (pct <= 10) pctClass = "pct-red";
+        else if (pct <= 60) pctClass = "pct-orange";
 
-        tr.innerHTML = `
-          <td class="detail-col" data-label="${esc(trs.thSr)}">${index + 1}</td>
-          <td class="detail-col" data-label="${esc(trs.thCol)}">${esc(item.col)}</td>
-          <td class="td-item">
-            <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(item.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${esc(unitLabel)})</span></span>
-            <span class="mobile-spec-sub">${esc(specText)}</span>
-          </td>
-          <td class="td-dd">
-            <button type="button" class="dd-cell-btn" id="dd-${item.id}" onclick="toggleRowDropdown('${item.id}')" aria-label="Expand">${isOpen ? "▴" : "▾"}</button>
-          </td>
-          <td class="detail-col" data-label="${esc(trs.thSpec)}" style="color:var(--muted);">${esc(specText)}</td>
-          <td class="detail-col num" data-label="${esc(trs.thTotal)}"><span class="total-fixed">${total}</span></td>
-          <td class="detail-col num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${issue}</span></td>
-          <td class="detail-col num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem}</span></td>
-          <td class="detail-col td-action" data-label="${esc(trs.thAct)}">
-            <div class="op-group">
-              <input type="number" min="0.01" step="any" placeholder="${esc(trs.phQty)}" class="op-qty" id="qty-${item.id}" />
-              <input type="text" placeholder="${esc(trs.phTo)}" class="op-to" id="to-${item.id}" />
-              <button type="button" class="btn-issue btn-sm" onclick="applyAction('${item.id}', 'ISSUE')">${esc(trs.btnIssue)}</button>
-              <button type="button" class="btn-add btn-sm" onclick="applyAction('${item.id}', 'ADD_TOTAL')">${esc(trs.btnPlusTotal)}</button>
+        const titleParts = [item.name, item.spec, `(${unitLabel})`].filter(Boolean).join(" ");
+
+        const card = document.createElement("div");
+        card.id = "card-" + item.id;
+        card.className = `stock-card${isLow ? " low-alert" : ""}${isBlinking ? " blink-3" : ""}${isOpen ? " open" : ""}`;
+
+        const queuedBadgeHtml = queuedEntry
+          ? `<span class="queued-pill"><span class="green-dot"></span>${esc(queuedEntry.qty)} ${esc(unitLabel)}</span>`
+          : "";
+
+        card.innerHTML = `
+          <div class="stock-card-main" onclick="toggleCardDropdown('${esc(item.id)}')">
+            <div class="item-visual-col">
+              <div class="item-thumb">${visual.svg}</div>
+              <span class="item-kind-caption" title="${esc(visual.label)}">${esc(visual.label)}</span>
             </div>
-          </td>
-          <td class="detail-col" data-label="${esc(trs.thDel)}">
-            <button type="button" class="btn-del btn-sm" onclick="deleteItem('${item.id}')">${esc(trs.btnDelete)}</button>
-          </td>
+            <div class="stock-card-info">
+              <div class="item-title-line">${esc(titleParts)}</div>
+              <div class="item-sub-row">
+                <span class="pct-pill ${pctClass}">${pctRounded}%</span>
+                ${queuedBadgeHtml}
+                <div class="qty-bar-wrap" title="${pctRounded}% remaining">
+                  <div class="qty-bar-track">
+                    <div class="qty-bar-fill" style="width:${pct}%;"></div>
+                  </div>
+                  <span class="qty-bar-dot"></span>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="expand-btn" onclick="event.stopPropagation(); toggleCardDropdown('${esc(item.id)}')" aria-label="Details">${isOpen ? "▴" : "▾"}</button>
+          </div>
+
+          <div class="stock-card-drawer">
+            <div class="detail-metrics">
+              <div class="metric-box"><span>${esc(trs.lblTotShort)}</span><strong>${tot} ${esc(unitLabel)}</strong></div>
+              <div class="metric-box"><span>${esc(trs.lblIssShort)}</span><strong class="issue-val">-${iss} ${esc(unitLabel)}</strong></div>
+              <div class="metric-box"><span>${esc(trs.lblRemShort)}</span><strong>${rem} ${esc(unitLabel)}</strong></div>
+            </div>
+
+            <div class="op-inputs-row">
+              <input type="number" min="0.01" step="any" placeholder="${esc(trs.phQty)}" class="op-qty" id="qty-${esc(item.id)}" onfocus="slideCardAboveGenerateBar('${esc(item.id)}')" onclick="slideCardAboveGenerateBar('${esc(item.id)}')" />
+              <input type="text" placeholder="${esc(trs.phTo)}" class="op-to" id="to-${esc(item.id)}" onfocus="slideCardAboveGenerateBar('${esc(item.id)}')" onclick="slideCardAboveGenerateBar('${esc(item.id)}')" />
+              ${queuedEntry
+                ? `<span class="item-queued-box"><span class="green-dot"></span>${esc(queuedEntry.qty)} ${esc(unitLabel)}</span>`
+                : ""
+              }
+            </div>
+
+            <div class="op-btns-row">
+              <button type="button" class="btn-issue" onclick="applyAction('${esc(item.id)}', 'ISSUE')">${esc(trs.btnIssue)}</button>
+              <button type="button" class="btn-add" onclick="applyAction('${esc(item.id)}', 'ADD_TOTAL')">${esc(trs.btnPlusTotal)}</button>
+              <button type="button" class="btn-del" onclick="deleteItem('${esc(item.id)}')">${esc(trs.btnDelete)}</button>
+            </div>
+          </div>
         `;
-        body.appendChild(tr);
+        listEl.appendChild(card);
       });
     }
 
@@ -2196,7 +3019,6 @@
       const qtyEl = document.getElementById("qty-" + id);
       const toEl = document.getElementById("to-" + id);
       const val = parseFloat(qtyEl.value);
-
       if (isNaN(val) || val <= 0) {
         alert(trs.alertQty);
         qtyEl.focus();
@@ -2206,17 +3028,19 @@
       const item = state.items.find(i => i.id === id);
       if (!item) return;
 
-      const total = Number(item.totalQty) || 0;
-      const issue = Number(item.issueQty) || 0;
-      const rem = total - issue;
+      const tot = Number(item.totalQty) || 0;
+      const iss = Number(item.issueQty) || 0;
+      const rem = tot - iss;
       const unitLabel = formatUnit(item.unit);
 
       if (type === "ADD_TOTAL") {
-        item.totalQty = total + val;
+        item.totalQty = tot + val;
         qtyEl.value = "";
         toEl.value = "";
+        if (!isLowStock10(item)) blinkCardIds.delete(item.id);
         saveState();
         renderAll();
+        playAddTotalSound();
         return;
       }
 
@@ -2224,25 +3048,36 @@
         if (!confirm(trs.confirmOverIssue(rem, unitLabel, val))) return;
       }
 
-      item.issueQty = issue + val;
+      const wasLowBefore = isLowStock10(item);
+      item.issueQty = iss + val;
       const newIssue = item.issueQty;
-      const newRem = total - newIssue;
+      const newRem = tot - newIssue;
+      const nowLow = isLowStock10(item);
+
+      if (nowLow) {
+        blinkCardIds.add(item.id);
+        if (!wasLowBefore || newRem === 0) {
+          triggerSingleVibrationOnLowStock();
+        }
+        setTimeout(() => {
+          blinkCardIds.delete(item.id);
+          const el = document.getElementById("card-" + item.id);
+          if (el) el.classList.remove("blink-3");
+        }, 1700);
+      }
+
       const receiver = toEl.value.trim() || trs.defaultReceiver;
-      const nowStr = new Date().toLocaleString(trs.locale);
+      const existing = pendingIssueBatch.get(item.id);
+      const totalQueuedQty = (existing ? Number(existing.qty) || 0 : 0) + val;
 
-      slipSeq += 1;
-      localStorage.setItem(STORAGE_KEY + "_seq", String(slipSeq));
-      const slipNo = "RQP-SLIP-" + String(slipSeq).padStart(4, "0");
-
-      state.history.unshift({
-        id: "h-" + Date.now(),
-        slipNo,
-        time: nowStr,
-        receiver,
+      pendingIssueBatch.set(item.id, {
+        itemId: item.id,
+        name: item.name,
         col: item.col,
-        itemName: item.name,
-        unit: item.unit,
-        qty: val,
+        spec: item.spec || "",
+        unit: unitLabel,
+        qty: totalQueuedQty,
+        receiver,
         remAfter: newRem
       });
 
@@ -2250,153 +3085,123 @@
       toEl.value = "";
       saveState();
       renderAll();
-
-      const slipPayload = {
-        no: slipNo,
-        time: nowStr,
-        party: receiver,
-        col: item.col,
-        itemName: `${item.name} (${unitLabel})`,
-        spec: item.spec || "-",
-        total: `${total} ${unitLabel}`,
-        issueNow: `-${val} ${unitLabel}`,
-        issueAll: `-${newIssue} ${unitLabel}`,
-        rem: `${newRem} ${unitLabel}`
-      };
-
-      saveLastSlip(slipPayload);
-      showSlip(slipPayload);
+      playIssueQueuedSound();
+      slideCardAboveGenerateBar(id);
     }
 
     function renderModalContent(mode) {
       const trs = t();
-      const head = document.getElementById("listModalHead");
-      const body = document.getElementById("listModalBody");
       const title = document.getElementById("listModalTitle");
-      const sortedItems = sortLowStockFirst(state.items);
+      const body = document.getElementById("listModalBody");
+      const sorted = sortByLowestPctFirst(state.items);
 
-      if (mode === "ALL_ITEMS") {
-        title.textContent = trs.mAllTitle;
-        head.innerHTML = `<tr><th>#</th><th>${esc(trs.thCol)}</th><th>${esc(trs.thItem)}</th><th>${esc(trs.thSpec)}</th><th class="num">${esc(trs.thTotal)}</th><th class="num">${esc(trs.thIssue)}</th><th class="num">${esc(trs.thRem)}</th><th class="m-dd-cell"></th></tr>`;
-        body.innerHTML = sortedItems.length
-          ? sortedItems.map((i, idx) => {
-              const tot = Number(i.totalQty) || 0;
-              const iss = Number(i.issueQty) || 0;
-              const rem = tot - iss;
-              const specText = i.spec || "-";
-              const unitLabel = formatUnit(i.unit);
-              const isLow = isLowStock10(i);
-              const rowKey = "ALL_" + i.id;
-              const isOpen = openModalRowIds.has(rowKey);
-              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open " : ""}${isLow ? "low-stock-row" : ""}">
-                <td class="m-head-cell">
-                  <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(i.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${esc(unitLabel)})</span></span>
-                  <span class="mobile-spec-sub">${esc(specText)}</span>
-                </td>
-                <td class="m-dd-cell">
-                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
-                </td>
-                <td class="m-detail" data-label="#">${idx + 1}</td>
-                <td class="m-detail" data-label="${esc(trs.thCol)}">${esc(i.col)}</td>
-                <td class="m-detail" data-label="${esc(trs.thItem)}"><strong>${esc(i.name)}</strong> (${esc(unitLabel)})</td>
-                <td class="m-detail" data-label="${esc(trs.thSpec)}">${esc(specText)}</td>
-                <td class="m-detail num" data-label="${esc(trs.thTotal)}">${tot}</td>
-                <td class="m-detail num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${iss}</span></td>
-                <td class="m-detail num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem}</span></td>
-              </tr>`;
-            }).join("")
-          : `<tr class="empty-row"><td colspan="8" style="text-align:center; padding:16px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+      if (mode === "ALL_ITEMS" || mode === "REM_ITEMS" || mode === "LOW_STOCK") {
+        title.textContent = mode === "LOW_STOCK" ? trs.mLowTitle : (mode === "REM_ITEMS" ? trs.mRemTitle : trs.mAllTitle);
+        const list = mode === "LOW_STOCK" ? sorted.filter(isLowStock10) : sorted;
+        body.innerHTML = list.length ? list.map(i => {
+          const tot = Number(i.totalQty) || 0;
+          const iss = Number(i.issueQty) || 0;
+          const rem = tot - iss;
+          const pct = Math.round(getStockPercent(i));
+          const unitLabel = formatUnit(i.unit);
+          return `
+            <div class="info-row-card" style="${isLowStock10(i) ? "border-color:var(--danger-line); background:var(--danger-bg);" : ""}">
+              <div style="font-size:0.85rem;">
+                <strong>${esc(i.name)}</strong> (${esc(unitLabel)}) • ${esc(i.spec || "-")}
+                <div style="font-size:0.76rem; color:var(--muted);">${esc(i.col)} • ${esc(trs.lblTotShort)}: ${tot} • ${esc(trs.lblIssShort)}: -${iss}</div>
+              </div>
+              <div style="text-align:right;">
+                <strong>${rem} ${esc(unitLabel)}</strong>
+                <div style="font-size:0.75rem; color:var(--muted);">${pct}%</div>
+              </div>
+            </div>
+          `;
+        }).join("") : `<div class="info-row-card"><span style="color:var(--muted); font-size:0.84rem;">${esc(trs.emptyTable)}</span></div>`;
+      } else if (mode === "ISSUED_TODAY" || mode === "ISSUE_HISTORY") {
+        title.textContent = mode === "ISSUED_TODAY" ? trs.mTodayTitle : trs.mHistTitle;
+        const todayStr = todayISO();
+        const list = mode === "ISSUED_TODAY" ? state.history.filter(h => (h.isoDate || "") === todayStr) : state.history;
+        body.innerHTML = list.length ? list.map(h => {
+          const unitLabel = formatUnit(h.unit);
+          return `
+            <div class="info-row-card">
+              <div style="font-size:0.84rem;">
+                <strong>${esc(h.slipNo)}</strong> • ${esc(h.itemName)} <span class="issue-val">(-${h.qty} ${esc(unitLabel)})</span>
+                <div style="font-size:0.76rem; color:var(--muted);">${esc(h.time)} • ${esc(h.receiver)} • ${esc(trs.lblRemShort)}: ${h.remAfter}</div>
+              </div>
+              <div class="row-actions">
+                <button type="button" class="btn-primary btn-sm" onclick="openSlipFromHistory('${esc(h.id)}')">${esc(trs.openSlip)}</button>
+                <button type="button" class="btn-del btn-sm" onclick="deleteHistoryEntry('${esc(h.id)}')">${esc(trs.btnDelete)}</button>
+              </div>
+            </div>
+          `;
+        }).join("") : `<div class="info-row-card"><span style="color:var(--muted); font-size:0.84rem;">${esc(trs.noSlipFound)}</span></div>`;
       } else if (mode === "ISSUE_ITEMS") {
         title.textContent = trs.mIssueTitle;
-        head.innerHTML = `<tr><th>#</th><th>${esc(trs.thCol)}</th><th>${esc(trs.thItem)}</th><th class="num">${esc(trs.thTotal)}</th><th class="num">${esc(trs.thIssue)}</th><th class="num">${esc(trs.thRem)}</th><th class="m-dd-cell"></th></tr>`;
-        body.innerHTML = sortedItems.length
-          ? sortedItems.map((i, idx) => {
-              const tot = Number(i.totalQty) || 0;
-              const iss = Number(i.issueQty) || 0;
-              const rem = tot - iss;
-              const unitLabel = formatUnit(i.unit);
-              const isLow = isLowStock10(i);
-              const rowKey = "ISS_" + i.id;
-              const isOpen = openModalRowIds.has(rowKey);
-              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open " : ""}${isLow ? "low-stock-row" : ""}">
-                <td class="m-head-cell">
-                  <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(i.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${esc(unitLabel)})</span></span>
-                  <span class="mobile-spec-sub">${esc(trs.thIssue)}: -${iss} ${esc(unitLabel)}</span>
-                </td>
-                <td class="m-dd-cell">
-                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
-                </td>
-                <td class="m-detail" data-label="#">${idx + 1}</td>
-                <td class="m-detail" data-label="${esc(trs.thCol)}">${esc(i.col)}</td>
-                <td class="m-detail" data-label="${esc(trs.thItem)}"><strong>${esc(i.name)}</strong> (${esc(unitLabel)})</td>
-                <td class="m-detail num" data-label="${esc(trs.thTotal)}">${tot}</td>
-                <td class="m-detail num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${iss} ${esc(unitLabel)}</span></td>
-                <td class="m-detail num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem}</span></td>
-              </tr>`;
-            }).join("")
-          : `<tr class="empty-row"><td colspan="7" style="text-align:center; padding:16px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
-      } else if (mode === "ISSUE_HISTORY") {
-        title.textContent = trs.mHistTitle;
-        head.innerHTML = `<tr><th>#</th><th>${esc(trs.sPartyLbl)}</th><th>${esc(trs.thItem)}</th><th class="num">${esc(trs.thIssue)}</th><th class="num">${esc(trs.thRem)}</th><th>${esc(trs.sNoLbl)}</th><th class="m-dd-cell"></th></tr>`;
-        body.innerHTML = state.history.length
-          ? state.history.map((h, idx) => {
-              const unitLabel = formatUnit(h.unit);
-              const rowKey = "HST_" + h.id;
-              const isOpen = openModalRowIds.has(rowKey);
-              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open" : ""}">
-                <td class="m-head-cell">
-                  <span><strong>${esc(h.itemName)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(-${h.qty} ${esc(unitLabel)})</span></span>
-                  <span class="mobile-spec-sub">${esc(h.receiver)}</span>
-                </td>
-                <td class="m-dd-cell">
-                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
-                </td>
-                <td class="m-detail" data-label="#">${idx + 1}</td>
-                <td class="m-detail" data-label="${esc(trs.sPartyLbl)}"><strong>${esc(h.receiver)}</strong></td>
-                <td class="m-detail" data-label="${esc(trs.thItem)}">${esc(h.itemName)} <span style="color:var(--muted);">(${esc(h.col)})</span></td>
-                <td class="m-detail num" data-label="${esc(trs.thIssue)}"><span class="issue-val">-${h.qty} ${esc(unitLabel)}</span></td>
-                <td class="m-detail num" data-label="${esc(trs.thRem)}">${h.remAfter} ${esc(unitLabel)}</td>
-                <td class="m-detail" data-label="${esc(trs.sNoLbl)}" style="font-size:0.78rem; color:var(--muted);">${esc(h.slipNo)} • ${esc(h.time)}</td>
-              </tr>`;
-            }).join("")
-          : `<tr class="empty-row"><td colspan="7" style="text-align:center; padding:16px; color:var(--muted);">-</td></tr>`;
-      } else if (mode === "REM_ITEMS") {
-        title.textContent = trs.mRemTitle;
-        head.innerHTML = `<tr><th>#</th><th>${esc(trs.thCol)}</th><th>${esc(trs.thItem)}</th><th>${esc(trs.thSpec)}</th><th class="num">${esc(trs.thTotal)}</th><th class="num">${esc(trs.thRem)}</th><th class="m-dd-cell"></th></tr>`;
-        body.innerHTML = sortedItems.length
-          ? sortedItems.map((i, idx) => {
-              const tot = Number(i.totalQty) || 0;
-              const iss = Number(i.issueQty) || 0;
-              const rem = tot - iss;
-              const specText = i.spec || "-";
-              const unitLabel = formatUnit(i.unit);
-              const isLow = isLowStock10(i);
-              const rowKey = "REM_" + i.id;
-              const isOpen = openModalRowIds.has(rowKey);
-              return `<tr id="mrow-${esc(rowKey)}" class="${isOpen ? "m-open " : ""}${isLow ? "low-stock-row" : ""}">
-                <td class="m-head-cell">
-                  <span><strong style="${isLow ? "color:var(--warn-fg);" : ""}">${esc(i.name)}</strong> <span style="color:var(--muted); font-size:0.78rem;">(${rem} ${esc(unitLabel)})</span></span>
-                  <span class="mobile-spec-sub">${esc(specText)}</span>
-                </td>
-                <td class="m-dd-cell">
-                  <button type="button" class="dd-cell-btn" id="mdd-${esc(rowKey)}" onclick="toggleModalRowDropdown('${esc(rowKey)}')">${isOpen ? "▴" : "▾"}</button>
-                </td>
-                <td class="m-detail" data-label="#">${idx + 1}</td>
-                <td class="m-detail" data-label="${esc(trs.thCol)}">${esc(i.col)}</td>
-                <td class="m-detail" data-label="${esc(trs.thItem)}"><strong>${esc(i.name)}</strong></td>
-                <td class="m-detail" data-label="${esc(trs.thSpec)}">${esc(specText)}</td>
-                <td class="m-detail num" data-label="${esc(trs.thTotal)}">${tot} ${esc(unitLabel)}</td>
-                <td class="m-detail num" data-label="${esc(trs.thRem)}"><span class="rem-badge ${isLow || rem <= 0 ? "rem-low" : ""}">${rem} ${esc(unitLabel)}</span></td>
-              </tr>`;
-            }).join("")
-          : `<tr class="empty-row"><td colspan="7" style="text-align:center; padding:16px; color:var(--muted);">${esc(trs.emptyTable)}</td></tr>`;
+        body.innerHTML = sorted.length ? sorted.map(i => {
+          const iss = Number(i.issueQty) || 0;
+          const unitLabel = formatUnit(i.unit);
+          return `
+            <div class="info-row-card">
+              <div style="font-size:0.84rem;"><strong>${esc(i.name)}</strong> (${esc(unitLabel)}) • ${esc(i.col)}</div>
+              <strong class="issue-val">-${iss} ${esc(unitLabel)}</strong>
+            </div>
+          `;
+        }).join("") : `<div class="info-row-card"><span style="color:var(--muted); font-size:0.84rem;">${esc(trs.emptyTable)}</span></div>`;
+      } else if (mode === "RECYCLE_BIN") {
+        title.textContent = trs.mRecycleTitle;
+        const binList = Array.isArray(state.recycleBin) ? state.recycleBin : [];
+        let html = `<div class="recycle-note">${esc(trs.recycleNote)}</div>`;
+
+        if (!binList.length) {
+          html += `<div class="info-row-card"><span style="color:var(--muted); font-size:0.84rem;">${esc(trs.emptyRecycle)}</span></div>`;
+        } else {
+          html += binList.map(entry => {
+            const dLeft = getRecycleDaysRemaining(entry.deletedAt);
+            const delDate = new Date(entry.deletedAt || Date.now()).toLocaleDateString(trs.locale);
+            if (entry.kind === "ITEM" && entry.data) {
+              const it = entry.data;
+              const unitLabel = formatUnit(it.unit);
+              const tot = Number(it.totalQty) || 0;
+              const iss = Number(it.issueQty) || 0;
+              return `
+                <div class="info-row-card">
+                  <div style="font-size:0.84rem;">
+                    <strong>${esc(it.name)}</strong> (${esc(unitLabel)}) • ${esc(it.col || "-")}
+                    <div style="font-size:0.76rem; color:var(--muted);">${esc(trs.lblTotShort)}: ${tot} • ${esc(trs.lblRemShort)}: ${tot - iss} • ${esc(delDate)} (${esc(trs.daysLeft(dLeft))})</div>
+                  </div>
+                  <div class="row-actions">
+                    <button type="button" class="btn-add btn-sm" onclick="restoreRecycleEntry('${esc(entry.binId)}')">${esc(trs.btnRestore)}</button>
+                    <button type="button" class="btn-del btn-sm" onclick="permanentDeleteRecycleEntry('${esc(entry.binId)}')">${esc(trs.btnPermDelete)}</button>
+                  </div>
+                </div>
+              `;
+            }
+
+            const h = entry.data || {};
+            const unitLabel = formatUnit(h.unit);
+            return `
+              <div class="info-row-card">
+                <div style="font-size:0.84rem;">
+                  <strong>${esc(h.slipNo || "SLIP")}</strong> • ${esc(h.itemName || "-")} <span class="issue-val">(-${esc(h.qty || 0)} ${esc(unitLabel)})</span>
+                  <div style="font-size:0.76rem; color:var(--muted);">${esc(h.time || "-")} • ${esc(h.receiver || "-")} • ${esc(delDate)} (${esc(trs.daysLeft(dLeft))})</div>
+                </div>
+                <div class="row-actions">
+                  <button type="button" class="btn-add btn-sm" onclick="restoreRecycleEntry('${esc(entry.binId)}')">${esc(trs.btnRestore)}</button>
+                  <button type="button" class="btn-del btn-sm" onclick="permanentDeleteRecycleEntry('${esc(entry.binId)}')">${esc(trs.btnPermDelete)}</button>
+                </div>
+              </div>
+            `;
+          }).join("");
+        }
+
+        body.innerHTML = html;
       }
     }
 
     function openListModal(mode) {
       closeDrawer();
       activeModalMode = mode;
-      openModalRowIds.clear();
       renderModalContent(mode);
       document.getElementById("listModal").classList.add("show");
     }
@@ -2406,116 +3211,162 @@
         alert(t().noSlip);
         return;
       }
-      lastSlipData = d;
+      saveLastSlip(d);
+      document.getElementById("slipLogoSlot").innerHTML = getResQLogoHtml(true);
       document.getElementById("sNo").textContent = d.no;
       document.getElementById("sTime").textContent = d.time;
       document.getElementById("sParty").textContent = d.party;
       document.getElementById("sCol").textContent = d.col;
       document.getElementById("sItem").textContent = d.itemName;
       document.getElementById("sSpec").textContent = d.spec;
-      document.getElementById("sTotal").textContent = d.total;
-      document.getElementById("sIssueNow").textContent = d.issueNow;
-      document.getElementById("sIssueAll").textContent = d.issueAll;
-      document.getElementById("sRem").textContent = d.rem;
+
+      const multiWrap = document.getElementById("sMultiTableWrap");
+      const singleBox = document.getElementById("sSingleBox");
+
+      if (Array.isArray(d.multiItems) && d.multiItems.length > 1) {
+        singleBox.style.display = "none";
+        multiWrap.style.display = "block";
+        multiWrap.innerHTML = `
+          <table class="slip-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Issued Qty</th>
+                <th>Remaining</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${d.multiItems.map(m => `
+                <tr>
+                  <td><strong>${esc(m.name)}</strong><div style="font-size:0.74rem; color:var(--muted);">${esc(m.col || "-")}</div></td>
+                  <td><strong class="issue-val">-${esc(m.qty)} ${esc(m.unit)}</strong></td>
+                  <td>${esc(m.remAfter)} ${esc(m.unit)}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      } else {
+        multiWrap.style.display = "none";
+        multiWrap.innerHTML = "";
+        singleBox.style.display = "grid";
+        if (Array.isArray(d.multiItems) && d.multiItems.length === 1) {
+          const m = d.multiItems[0];
+          const matched = state.items.find(i => i.name === m.name && i.col === m.col);
+          const tot = matched ? (Number(matched.totalQty) || 0) : (Number(m.qty) + Number(m.remAfter));
+          document.getElementById("sTotal").textContent = `${tot} ${m.unit}`;
+          document.getElementById("sIssueNow").textContent = `-${m.qty} ${m.unit}`;
+          document.getElementById("sRem").textContent = `${m.remAfter} ${m.unit}`;
+        } else {
+          document.getElementById("sTotal").textContent = d.total;
+          document.getElementById("sIssueNow").textContent = d.issueNow;
+          document.getElementById("sRem").textContent = d.rem;
+        }
+      }
 
       document.getElementById("slipModal").classList.add("show");
     }
 
     function deleteItem(id) {
       const item = state.items.find(i => i.id === id);
-      if (!item) return;
-      if (!confirm(t().confirmDelete(item.name))) return;
+      if (!item || !confirm(t().confirmDelete(item.name))) return;
+      moveItemToRecycleBin(item);
       state.items = state.items.filter(i => i.id !== id);
-      openRowIds.delete(id);
+      pendingIssueBatch.delete(id);
+      openCardIds.delete(id);
+      blinkCardIds.delete(id);
       saveState();
       renderAll();
+      playDeleteSound();
     }
 
-    async function downloadCsv() {
+    function downloadCsv() {
       const head = ["Sr.", "Column", "Item", "Details", "Unit", "Total Qty", "Issue (-)", "Remaining"];
-      const rows = sortLowStockFirst(state.items).map((i, idx) => {
+      const rows = sortByLowestPctFirst(state.items).map((i, idx) => {
         const tot = Number(i.totalQty) || 0;
         const iss = Number(i.issueQty) || 0;
         return [idx + 1, i.col, i.name, i.spec || "", formatUnit(i.unit), tot, iss, tot - iss]
-          .map(v => `"${String(v).replace(/"/g, '""')}"`)
-          .join(",");
+          .map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
       });
-      const csvText = "\uFEFF" + [head.join(","), ...rows].join("\n");
-
-      const native = getCapacitorPlugins();
-      if (native && native.Filesystem) {
-        try {
-          const saved = await saveBase64ToAndroid(
-            native.Filesystem,
-            native.Directory,
-            "ResQ-Power-Stock.csv",
-            textToBase64Utf8(csvText),
-            "text/csv"
-          );
-          if (native.Share && saved.res && saved.res.uri) {
-            try {
-              await native.Share.share({
-                title: "ResQ-Power-Stock.csv",
-                text: "ResQ-Power-Stock.csv",
-                url: saved.res.uri,
-                dialogTitle: "ResQ-Power-Stock.csv"
-              });
-              return;
-            } catch (_) {}
-          }
-          alert(t().savedMsg(saved.label));
-          return;
-        } catch (err) {
-          console.error("CSV save error:", err);
-        }
-      }
-
-      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob(["\uFEFF" + [head.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "ResQ-Power-Stock.csv";
+      a.download = "Store-Material-Stock.csv";
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    /* Events */
-    document.getElementById("topDdTrigger").addEventListener("click", () => {
-      setTopDdOpen(!ddSearchOpen);
+    document.getElementById("topSlipSearchInput").addEventListener("input", renderTopSlipResults);
+    document.getElementById("sizeSearchInput").addEventListener("input", renderStockList);
+    document.getElementById("generateSlipBtn").addEventListener("click", generateCombinedIssueSlip);
+
+    document.getElementById("dateSlipsFilterInput").addEventListener("change", (e) => {
+      renderDateSlipsList(e.target.value);
     });
 
-    ["inSlipNo", "inDate", "inPersonName"].forEach(id => {
-      document.getElementById(id).addEventListener("input", updateTopDdSummary);
-      document.getElementById(id).addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          executeDdSearch(true);
-        }
-      });
+    document.getElementById("openDrawerBtn").addEventListener("click", openDrawer);
+    document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
+    document.getElementById("drawerBackdrop").addEventListener("click", closeDrawer);
+    document.getElementById("drawerThemeBtn").addEventListener("click", toggleTheme);
+    document.getElementById("drawerSlipBtn").addEventListener("click", () => { closeDrawer(); showSlip(lastSlipData); });
+    document.getElementById("drawerCsvBtn").addEventListener("click", () => { closeDrawer(); downloadCsv(); });
+    document.getElementById("drawerClearBtn").addEventListener("click", () => {
+      closeDrawer();
+      if (!confirm(t().confirmClear)) return;
+      state.items.forEach(it => moveItemToRecycleBin(it));
+      state.history.forEach(h => moveHistoryToRecycleBin(h));
+      state.items = [];
+      state.history = [];
+      pendingIssueBatch.clear();
+      openCardIds.clear();
+      blinkCardIds.clear();
+      saveState();
+      renderAll();
+      playDeleteSound();
     });
 
-    document.getElementById("btnRunDdSearch").addEventListener("click", () => executeDdSearch(true));
+    document.getElementById("colFilter").addEventListener("change", renderStockList);
 
-    document.getElementById("btnResetDdSearch").addEventListener("click", () => {
-      document.getElementById("inSlipNo").value = "";
-      document.getElementById("inDate").value = "";
-      document.getElementById("inPersonName").value = "";
-      document.getElementById("slipSearchResults").innerHTML = "";
-      hasExecutedDdSearch = false;
-      updateTopDdSummary();
+    document.getElementById("inUnit").addEventListener("change", () => {
+      closeAllComboMenus();
+      updateAddFormContext(true);
+    });
+
+    setupSingleCombo("inCol", "arrowCol", "menuCol", "groupCol", () => currentColOptions, () => updateAddFormContext(false));
+    setupSingleCombo("inName", "arrowName", "menuName", "groupName", () => currentNameOptions, null);
+    setupSingleCombo("inSpec", "arrowSpec", "menuSpec", "groupSpec", () => currentSpecOptions, null);
+
+    document.getElementById("navSearchBtn").addEventListener("click", openGlobalSearchModal);
+    document.getElementById("navAddBtn").addEventListener("click", () => {
+      closeAllComboMenus();
+      updateAddFormContext(false);
+      document.getElementById("addModal").classList.add("show");
+    });
+    document.getElementById("navSlipBtn").addEventListener("click", () => openDateSlipsModal(todayISO()));
+
+    document.getElementById("closeAddModal").addEventListener("click", () => {
+      closeAllComboMenus();
+      document.getElementById("addModal").classList.remove("show");
+    });
+    document.getElementById("addModal").addEventListener("click", (e) => {
+      if (e.target.id === "addModal") {
+        closeAllComboMenus();
+        e.target.classList.remove("show");
+      }
     });
 
     document.getElementById("addForm").addEventListener("submit", function (e) {
       e.preventDefault();
+      closeAllComboMenus();
       const name = document.getElementById("inName").value.trim();
       const col = document.getElementById("inCol").value.trim();
       const unit = document.getElementById("inUnit").value;
-      const totalQty = parseFloat(document.getElementById("inTotal").value) || 0;
+      const totalQty = Math.max(0, parseFloat(document.getElementById("inTotal").value) || 0);
       const spec = document.getElementById("inSpec").value.trim();
-
       if (!name || !col) return;
 
-      state.items.unshift({
+      const newItem = {
         id: "itm-" + Date.now(),
         col,
         name,
@@ -2523,77 +3374,49 @@
         unit,
         totalQty,
         issueQty: 0
-      });
-
+      };
+      state.items.unshift(newItem);
+      if (isLowStock10(newItem)) {
+        blinkCardIds.add(newItem.id);
+        triggerSingleVibrationOnLowStock();
+        setTimeout(() => blinkCardIds.delete(newItem.id), 1700);
+      }
       saveState();
+      updateFilter();
       renderAll();
       this.reset();
-      document.getElementById("inName").focus();
+      updateAddFormContext(false);
+      document.getElementById("addModal").classList.remove("show");
+      playAddTotalSound();
     });
 
-    document.getElementById("searchInput").addEventListener("input", renderTable);
-    document.getElementById("colFilter").addEventListener("change", renderTable);
+    document.getElementById("closeGlobalSearch").addEventListener("click", () => document.getElementById("globalSearchModal").classList.remove("show"));
+    document.getElementById("globalSearchModal").addEventListener("click", (e) => { if (e.target.id === "globalSearchModal") e.target.classList.remove("show"); });
+    document.getElementById("globalSearchInput").addEventListener("input", renderGlobalSearchResults);
 
-    document.getElementById("openDrawerBtn").addEventListener("click", openDrawer);
-    document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
-    document.getElementById("drawerBackdrop").addEventListener("click", closeDrawer);
+    document.getElementById("closeDateSlips").addEventListener("click", () => document.getElementById("dateSlipsModal").classList.remove("show"));
+    document.getElementById("dateSlipsModal").addEventListener("click", (e) => { if (e.target.id === "dateSlipsModal") e.target.classList.remove("show"); });
 
-    document.getElementById("drawerThemeBtn").addEventListener("click", toggleTheme);
+    document.getElementById("closeListModal").addEventListener("click", () => { activeModalMode = null; document.getElementById("listModal").classList.remove("show"); });
+    document.getElementById("listModal").addEventListener("click", (e) => { if (e.target.id === "listModal") { activeModalMode = null; e.target.classList.remove("show"); } });
 
-    document.getElementById("drawerSlipBtn").addEventListener("click", () => {
-      closeDrawer();
-      showSlip(lastSlipData);
-    });
-
-    document.getElementById("drawerCsvBtn").addEventListener("click", () => {
-      closeDrawer();
-      downloadCsv();
-    });
-
-    document.getElementById("closeListModal").addEventListener("click", () => {
-      activeModalMode = null;
-      document.getElementById("listModal").classList.remove("show");
-    });
-
-    document.getElementById("listModal").addEventListener("click", (e) => {
-      if (e.target.id === "listModal") {
-        activeModalMode = null;
-        e.target.classList.remove("show");
-      }
-    });
-
-    document.getElementById("lastSlipBtn").addEventListener("click", () => showSlip(lastSlipData));
-    document.getElementById("closeSlip").addEventListener("click", () => {
-      document.getElementById("slipModal").classList.remove("show");
-    });
-    document.getElementById("slipModal").addEventListener("click", (e) => {
-      if (e.target.id === "slipModal") e.target.classList.remove("show");
-    });
-    document.getElementById("savePdfBtn").addEventListener("click", handleSavePdfOrPrint);
-
-    document.getElementById("clearAllBtn").addEventListener("click", () => {
-      if (!confirm(t().confirmClear)) return;
-      state = structuredClone(emptyState);
-      openRowIds.clear();
-      openModalRowIds.clear();
-      saveState();
-      renderAll();
-    });
-
-    document.getElementById("csvBtn").addEventListener("click", downloadCsv);
+    document.getElementById("closeSlip").addEventListener("click", () => document.getElementById("slipModal").classList.remove("show"));
+    document.getElementById("slipModal").addEventListener("click", (e) => { if (e.target.id === "slipModal") e.target.classList.remove("show"); });
+    document.getElementById("savePdfBtn").addEventListener("click", downloadCurrentSlipPdf);
 
     function renderAll() {
+      const purged = purgeExpiredRecycleBin();
+      if (purged) saveState();
       updateFilter();
-      renderDrawerCounts();
-      if (hasExecutedDdSearch) executeDdSearch(false);
-      renderTable();
+      renderDashboardAndCounts();
+      renderStockList();
+      renderGenerateSlipBar();
       if (activeModalMode) renderModalContent(activeModalMode);
     }
 
     applyLanguage();
     applyTheme(localStorage.getItem(THEME_KEY) || "dark");
     renderAll();
-    runSplashLoader();
   </script>
 </body>
 </html>
