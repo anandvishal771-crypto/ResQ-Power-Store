@@ -46,11 +46,34 @@ jobs:
           npx cap add android
           npx cap copy android
 
+      - name: Fix Duplicate Kotlin Stdlib Classes
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            function walk(dir) {
+              if (!fs.existsSync(dir)) return;
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory()) walk(full);
+                else if (entry.name.endsWith(".gradle") || entry.name.endsWith(".gradle.kts")) {
+                  let txt = fs.readFileSync(full, "utf8");
+                  txt = txt.replace(/org\.jetbrains\.kotlin:kotlin-stdlib-(jdk7|jdk8)(:[0-9a-zA-Z._-]+)?/g, "org.jetbrains.kotlin:kotlin-stdlib");
+                  if (!txt.includes("kotlin-stdlib-jdk7")) {
+                    txt += `\nsubprojects { configurations.all { resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib:1.8.22" } }\n`;
+                  }
+                  fs.writeFileSync(full, txt, "utf8");
+                }
+              }
+            }
+            walk("android");
+          '
+
       - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
