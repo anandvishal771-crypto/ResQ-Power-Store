@@ -1,76 +1,58 @@
-name: Build APK
+name: Build Android APK
 
 on:
+  push:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Prepare Web Files
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Java & Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Prepare Web Assets for Capacitor
         run: |
           mkdir -p www
           if [ -f "index.html" ]; then
             cp index.html www/index.html
-          elif [ -f "Index.html" ]; then
-            cp Index.html www/index.html
+          else
+            HTML_FILE=$(find . -maxdepth 3 -name "*.html" ! -path "./node_modules/*" ! -path "./android/*" | head -n 1)
+            if [ -z "$HTML_FILE" ]; then
+              echo "No HTML file found in repository."
+              exit 1
+            fi
+            cp "$HTML_FILE" www/index.html
           fi
-          cp style.css www/ 2>/dev/null || true
-          cp script.js www/ 2>/dev/null || true
-          cp app.js www/ 2>/dev/null || true
-          test -f www/index.html && echo "www/index.html is ready"
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Build Android App
+      - name: Initialize Capacitor & Add Android Platform
         run: |
           npm init -y
-          npm install --no-audit --no-fund @capacitor/core @capacitor/cli @capacitor/android @capacitor/filesystem @capacitor/share
-          npm install --no-audit --no-fund -D @capacitor/assets
-          npx cap init "ResQPowerStore" "com.resq.powerstore" --web-dir=www
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "ResQ Power Store" "com.resqpower.storeregister" --web-dir=www
           npx cap add android
-          if [ -f "icon.png" ]; then
-            mkdir -p assets
-            cp icon.png assets/icon.png
-            npx capacitor-assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#111111'
-          fi
-          npx cap sync android
-          node -e '
-          const fs = require("fs");
-          const path = "android/app/src/main/AndroidManifest.xml";
-          let xml = fs.readFileSync(path, "utf8");
-          if (!xml.includes("READ_EXTERNAL_STORAGE")) {
-            xml = xml.replace(
-              "<application",
-              "<uses-permission android:name=\"android.permission.INTERNET\" />\n    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\" />\n    <application"
-            );
-          }
-          if (!xml.includes("android:requestLegacyExternalStorage")) {
-            xml = xml.replace(
-              "<application",
-              "<application android:requestLegacyExternalStorage=\"true\""
-            );
-          }
-          fs.writeFileSync(path, xml, "utf8");
-          '
+          npx cap copy android
+
+      - name: Build Debug APK
+        run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ResQ-Power-Store-APK
